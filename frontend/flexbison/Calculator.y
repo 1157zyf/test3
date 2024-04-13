@@ -49,7 +49,7 @@ void yyerror(char * msg);
 
 %type <node> Statement
 %type <node> Expr
-%type <node> AddExp UnaryExp LVal
+%type <node> AddExp MultExp MinusExp UnaryExp LVal
 %type <node> PrimaryExp
 %type <node> RealParamList
 
@@ -172,44 +172,55 @@ Expr : AddExp {
     ;
 
 /* 加法表达式 */
-AddExp : AddExp T_ADD UnaryExp {
+AddExp : MultExp {
+        /* Expr = Term */
+        $$ = $1;
+    }
+    | AddExp T_ADD MultExp {
         /* Expr = Expr + Term */
 
         // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_ADD, $1, $3, nullptr);
     }
-    | AddExp T_SUB UnaryExp {
+	| AddExp T_SUB MultExp {
         /* Expr = Expr + Term */
 
         // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_SUB, $1, $3, nullptr);
     }
-	| AddExp T_MULT UnaryExp {
+	;
+
+MultExp : MinusExp {
+        $$ = $1;
+	}
+    | MultExp T_MULT MinusExp {
         /* Expr = Expr * Term */
 
         // 创建一个AST_OP_MULT类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_MULT, $1, $3, nullptr);
 	}
-    | AddExp T_DIV UnaryExp {
+    | MultExp T_DIV MinusExp {
         /* Expr = Expr / Term */
 
         // 创建一个AST_OP_DIV类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_DIV, $1, $3, nullptr);
 	}
-    | AddExp T_MOD UnaryExp {
+    | MultExp T_MOD MinusExp {
         /* Expr = Expr % Term */
 
         // 创建一个AST_OP_MULT类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_MOD, $1, $3, nullptr);
-	} 
-	| T_SUB UnaryExp {
+	}
+    ;
+
+MinusExp : UnaryExp {
+        $$ = $1;
+	}
+    |T_SUB UnaryExp {
 		$$ = new_ast_node(ast_operator_type::AST_OP_SUB, $2, nullptr);
 	}
-    | UnaryExp {
-        /* Expr = Term */
-        $$ = $1;
-    }
 	;
+
 UnaryExp : PrimaryExp {
         $$ = $1;
     }
