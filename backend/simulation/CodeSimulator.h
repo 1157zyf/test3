@@ -53,6 +53,22 @@ protected:
     /// @param inst IR中间指令
     bool calc_sub_int32(IRInst * inst);
 
+    /// @brief 整数乘法指令计算
+    /// @param inst IR中间指令
+    bool calc_mult_int32(IRInst * inst);
+
+    /// @brief 整数除法指令计算
+    /// @param inst IR中间指令
+    bool calc_div_int32(IRInst * inst);
+
+    /// @brief 整数取模指令计算
+    /// @param inst IR中间指令
+    bool calc_mod_int32(IRInst * inst);
+
+    /// @brief 整数求负指令计算
+    /// @param inst IR中间指令
+    bool calc_minus_int32(IRInst * inst);
+
     /// @brief GOTO指令计算
     /// @param inst IR中间指令
     bool calc_goto(IRInst * inst);
