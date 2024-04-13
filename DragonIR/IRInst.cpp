@@ -120,6 +120,10 @@ BinaryIRInst::BinaryIRInst(IRInstOperator _op, Value * _result, Value * _srcVal1
     srcValues.push_back(_srcVal1);
     srcValues.push_back(_srcVal2);
 }
+BinaryIRInst::BinaryIRInst(IRInstOperator _op, Value * _result, Value * _srcVal1) : IRInst(_op, _result)
+{
+    srcValues.push_back(_srcVal1);
+}
 
 /// @brief 析构函数
 BinaryIRInst::~BinaryIRInst()
@@ -142,6 +146,26 @@ void BinaryIRInst::toString(std::string & str)
 
             // 减法指令，二元运算
             str = result->getName() + " = sub " + src1->toString() + ", " + src2->toString();
+            break;
+        case IRInstOperator::IRINST_OP_MULT_I:
+
+            // 乘法指令，二元运算
+            str = result->getName() + " = mult " + src1->toString() + ", " + src2->toString();
+            break;
+        case IRInstOperator::IRINST_OP_DIV_I:
+
+            // 除法指令，二元运算
+            str = result->getName() + " = div " + src1->toString() + ", " + src2->toString();
+            break;
+        case IRInstOperator::IRINST_OP_MOD_I:
+
+            // 取模指令，二元运算
+            str = result->getName() + " = mod " + src1->toString() + ", " + src2->toString();
+            break;
+        case IRInstOperator::IRINST_OP_MINUS:
+
+            // 取模指令，二元运算
+            str = result->getName() + " = minus " + src1->toString() + ", " + src2->toString();
             break;
 
         default:

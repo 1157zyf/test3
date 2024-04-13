@@ -42,6 +42,17 @@ enum class IRInstOperator {
     IRINST_OP_FUNC_CALL,
 
     /* 后续可追加其他的IR指令 */
+    /// @brief 整数的乘法指令，二元运算
+    IRINST_OP_MULT_I,
+
+    /// @brief 整数的除法指令，二元运算
+    IRINST_OP_DIV_I,
+
+    /// @brief 取模指令，二元运算
+    IRINST_OP_MOD_I,
+
+    /// @brief 求负指令，一元运算
+    IRINST_OP_MINUS,
 
     /// @brief 最大指令码，也是无效指令
     IRINST_OP_MAX
@@ -175,6 +186,12 @@ public:
     /// @param _srcVal1 源操作数1
     /// @param _srcVal2 源操作数2
     BinaryIRInst(IRInstOperator _op, Value * _result, Value * _srcVal1, Value * _srcVal2);
+
+    /// @brief 构造函数
+    /// @param _op 操作符
+    /// @param _result 结果操作数
+    /// @param _srcVal1 源操作数1
+    BinaryIRInst(IRInstOperator _op, Value * _result, Value * _srcVal1);
 
     /// @brief 析构函数
     virtual ~BinaryIRInst() override;
