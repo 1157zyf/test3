@@ -105,7 +105,7 @@
 	"?terminal.integrated.profiles.windows": "TODO: 请根据真实的路径修改clang64的路径",
 	"terminal.integrated.profiles.windows": {
 		"clang64": {
-			"path": "C:/LinuxEnv/msys64/msys2_shell.cmd",
+			"path": "D:/Msys64/msys2_shell.cmd",
 			"args": ["-defterm", "-clang64", "-no-start", "-here", "-shell", "zsh"]
 		},
 		"mingw64": {

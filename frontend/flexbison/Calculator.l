@@ -69,9 +69,23 @@ white_line  [\r\n]
                 ; // 忽略行注释
             }
 
-{d}+		{
-                // 词法识别无符号整数，注意对于负数，则需要识别为负号和无符号数两个Token
+0|[1-9]|[1-9]{d}+		{
+                // 词法识别十进制无符号整数，注意对于负数，则需要识别为负号和无符号数两个Token
                 yylval.integer_num.val = (uint32_t)strtol(yytext, (char **)NULL, 10);
+                yylval.integer_num.lineno = yylineno;
+                return T_DIGIT;
+            }
+
+0[Xx]([0-9a-fA-F])+      {
+	            //识别十六进制无符号整数
+				yylval.integer_num.val = (uint32_t)strtol(yytext, (char **)NULL, 16);
+                yylval.integer_num.lineno = yylineno;
+                return T_DIGIT;
+            }
+
+0[0-7]+     {
+				//识别八进制无符号整数
+				yylval.integer_num.val = (uint32_t)strtol(yytext, (char **)NULL, 8);
                 yylval.integer_num.lineno = yylineno;
                 return T_DIGIT;
             }
@@ -91,11 +105,16 @@ white_line  [\r\n]
                 return T_ID;
             }
 
+
 "("			{return '(';}
 ")"			{return ')';}
 
 "-"			{return T_SUB;}
 "+"			{return T_ADD;}
+
+"*"			{return T_MULT;}
+"/"			{return T_DIV;}
+"%"         {return T_MOD;}
 
 "="         {return '=';}
 ";"         {return ';';}

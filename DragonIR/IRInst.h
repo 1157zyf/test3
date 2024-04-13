@@ -38,6 +38,18 @@ enum class IRInstOperator {
     /// @brief 赋值指令，一元运算
     IRINST_OP_ASSIGN,
 
+    /// @brief 整数的乘法指令，二元运算
+    IRINST_OP_MULT_I,
+
+    /// @brief 整数的除法指令，二元运算
+    IRINST_OP_DIV_I,
+
+    /// @brief 整数的模运算，二元运算
+    IRINST_OP_MOD_I,
+
+    /// @brief 求负指令，一元运算
+    IRINST_OP_MINUS,
+
     /// @brief 函数调用，多目运算，个数不限
     IRINST_OP_FUNC_CALL,
 
@@ -117,7 +129,7 @@ protected:
     /// @brief IR指令操作码
     enum IRInstOperator op;
 
-    /// @brief 源操作树
+    /// @brief 源操作数
     std::vector<Value *> srcValues;
 
     /// @brief 目的操作数或结果或跳转指令的目标

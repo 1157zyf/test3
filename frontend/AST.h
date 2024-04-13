@@ -40,7 +40,7 @@ enum class ast_operator_type : int {
     /// @brief 二元运算符+
     AST_OP_ADD,
 
-    /// @brief 二元运算符*
+    /// @brief 二元运算符-
     AST_OP_SUB, //
 
     /// @brief 多个语句组成的块运算符
@@ -77,6 +77,14 @@ enum class ast_operator_type : int {
     AST_OP_COMPILE_UNIT,
 
     // TODO 抽象语法树其它内部节点运算符追加
+    /// @brief 二元运算符*
+    AST_OP_MULT,
+
+    /// @brief 二元运算符/
+    AST_OP_DIV,
+
+    /// @brief 二元运算符%
+    AST_OP_MOD,
 
     /// @brief 最大标识符，表示非法运算符
     AST_OP_MAX,
