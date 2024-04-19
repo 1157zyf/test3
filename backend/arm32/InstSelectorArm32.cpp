@@ -34,6 +34,10 @@ InstSelectorArm32::InstSelectorArm32(vector<IRInst *> & _irCode, ILocArm32 & _il
 
     translator_handlers[IRInstOperator::IRINST_OP_ADD_I] = &InstSelectorArm32::translate_add_int32;
     translator_handlers[IRInstOperator::IRINST_OP_SUB_I] = &InstSelectorArm32::translate_sub_int32;
+    translator_handlers[IRInstOperator::IRINST_OP_MULT_I] = &InstSelectorArm32::translate_mult_int32;
+    translator_handlers[IRInstOperator::IRINST_OP_DIV_I] = &InstSelectorArm32::translate_div_int32;
+    translator_handlers[IRInstOperator::IRINST_OP_MOD_I] = &InstSelectorArm32::translate_mod_int32;
+    translator_handlers[IRInstOperator::IRINST_OP_MINUS] = &InstSelectorArm32::translate_minus_int32;
 
     translator_handlers[IRInstOperator::IRINST_OP_FUNC_CALL] = &InstSelectorArm32::translate_call;
 }
