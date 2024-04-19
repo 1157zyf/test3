@@ -69,7 +69,7 @@ white_line  [\r\n]
                 ; // 忽略行注释
             }
 
-0|[1-9]|[1-9]{d}+		{
+[0-9]|[1-9]{d}+		{
                 // 词法识别十进制无符号整数，注意对于负数，则需要识别为负号和无符号数两个Token
                 yylval.integer_num.val = (uint32_t)strtol(yytext, (char **)NULL, 10);
                 yylval.integer_num.lineno = yylineno;

@@ -164,7 +164,7 @@ void BinaryIRInst::toString(std::string & str)
             break;
         case IRInstOperator::IRINST_OP_MINUS:
 
-            // 取模指令，一元运算
+            // 取负指令，一元运算
             str = result->getName() + " = minus " + src1->toString();
             break;
 
