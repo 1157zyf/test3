@@ -9,7 +9,6 @@
  *
  */
 #include <cstdio>
-
 #include "CodeGenerator.h"
 #include "CodeSimulator.h"
 #include "IRCode.h"
@@ -52,7 +51,14 @@ bool CodeSimulator::calc_entry(IRInst * inst)
 bool CodeSimulator::calc_exit(IRInst * inst)
 {
     // TODO 函数调用支持时这里必须进行值的返回
-
+    //如果有调用自定义函数，获得其返回值
+    if (this->calc_call_return) {
+        //获取exit指令中的返回值
+        Value * src = inst->getSrc1();
+        //赋值给funcCallInst的destVal
+        this->calc_call_return->intVal = src->intVal;
+        printf("calc_exit........\n");
+    }
     return true;
 }
 
@@ -170,9 +176,9 @@ bool CodeSimulator::calc_goto(IRInst * inst)
     // 无条件跳转指令
 
     // TODO 需要自己实现
-    printf("goto not support");
-
-    return false;
+    // printf("goto not support");
+    printf("calc_goto........\n");
+    return true;
 }
 
 /// @brief 函数调用指令计算
@@ -193,8 +199,32 @@ bool CodeSimulator::calc_call(IRInst * inst)
     // 目前支持内置函数
     if (!func->isBuiltin()) {
         // TODO 目前不支持，需要自己实现
-        printf("User self-defined function(%s) not support to be called\n", funcCallInst->name.c_str());
-        return false;
+        // printf("User self-defined function(%s) not support to be called\n", funcCallInst->name.c_str());
+        // return false;
+
+        //函数调用ir，把实参赋给形参
+        std::vector<Value *> & srcVals = funcCallInst->getSrc();
+        for (int i = 0; i < srcVals.size(); ++i) {
+            func->getParams()[i].val->intVal = srcVals[i]->intVal;
+        }
+
+        //跳转执行被调用函数的ir
+        InterCode & funcCode = func->getInterCode();
+        for (auto & finst: funcCode.getInsts()) {
+
+            //出口指令进行值的返回
+            if (finst->getOp() == IRInstOperator::IRINST_OP_EXIT) {
+                this->calc_call_return = funcCallInst->getDst();
+            }
+            bool result = IRInstCalc(finst);
+            //单条指令解释执行
+            if (!result) {
+                break;
+            }
+        }
+        this->calc_call_return = nullptr;
+        printf("calc_call........\n");
+        return true;
     }
 
     // 内置函数只支持putint函数
@@ -204,7 +234,7 @@ bool CodeSimulator::calc_call(IRInst * inst)
         return false;
     }
 
-    printf("%d", funcCallInst->getSrc1()->intVal);
+    printf("print调用%d\n", funcCallInst->getSrc1()->intVal);
 
     return true;
 }

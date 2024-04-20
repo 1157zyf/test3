@@ -86,4 +86,6 @@ protected:
 
     /// @brief IR动作解释执行指令清单
     std::unordered_map<IRInstOperator, calc_handler> calc_handlers;
+
+    Value * calc_call_return = nullptr;
 };
