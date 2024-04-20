@@ -3,7 +3,7 @@ function sum(a, b, c, d, e, f)
     putint(d);
     putint(e);
     putint(f);
-    return a + b + c + d + e + f;
+    return a + b + -c*2 + d*3 + e + f;
 }
 
 a = 2;
