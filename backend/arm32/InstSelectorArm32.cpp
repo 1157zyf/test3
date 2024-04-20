@@ -34,10 +34,10 @@ InstSelectorArm32::InstSelectorArm32(vector<IRInst *> & _irCode, ILocArm32 & _il
 
     translator_handlers[IRInstOperator::IRINST_OP_ADD_I] = &InstSelectorArm32::translate_add_int32;
     translator_handlers[IRInstOperator::IRINST_OP_SUB_I] = &InstSelectorArm32::translate_sub_int32;
-    translator_handlers[IRInstOperator::IRINST_OP_MULT_I] = &InstSelectorArm32::translate_mult_int32;
+    translator_handlers[IRInstOperator::IRINST_OP_MULT_I] = &InstSelectorArm32::translate_mul_int32;
     translator_handlers[IRInstOperator::IRINST_OP_DIV_I] = &InstSelectorArm32::translate_div_int32;
     translator_handlers[IRInstOperator::IRINST_OP_MOD_I] = &InstSelectorArm32::translate_mod_int32;
-    translator_handlers[IRInstOperator::IRINST_OP_MINUS] = &InstSelectorArm32::translate_minus_int32;
+    translator_handlers[IRInstOperator::IRINST_OP_MINUS] = &InstSelectorArm32::translate_neg_int32;
 
     translator_handlers[IRInstOperator::IRINST_OP_FUNC_CALL] = &InstSelectorArm32::translate_call;
 }
@@ -264,21 +264,21 @@ void InstSelectorArm32::translate_one_operator(IRInst * inst, string operator_na
 
     arg1_reg_name = PlatformArm32::regName[op1_reg_no];
 
-    // 看结果变量是否是寄存器，若不是则采用参数指定的寄存器rs_reg_name
+    // 如果结果寄存器不是-1，那么使用指定的寄存器
     if (rs->regId != -1) {
         rs_reg_no = rs->regId;
     } else if (rs->isTemp()) {
-        // 临时变量
+        // 如果结果是临时变量，则使用指定的寄存器
         rs->regId = rs_reg_no;
     }
 
     std::string rs_reg_name = PlatformArm32::regName[rs_reg_no];
 
+    // 执行单目运算
     iloc.inst(operator_name, rs_reg_name, arg1_reg_name);
 
-    // 结果不是寄存器，则需要把rs_reg_name保存到结果变量中
+    // 如果结果不在寄存器中，则保存到结果变量中
     if (rs->regId == -1) {
-        // r8 -> rs 可能用到r9
         iloc.store_var(rs_reg_no, rs, op1_reg_no);
     }
 }
@@ -299,9 +299,9 @@ void InstSelectorArm32::translate_sub_int32(IRInst * inst)
 
 /// @brief 整数乘指令翻译成ARM32汇编
 /// @param inst IR指令
-void InstSelectorArm32::translate_mult_int32(IRInst * inst)
+void InstSelectorArm32::translate_mul_int32(IRInst * inst)
 {
-    translate_two_operator(inst, "mult");
+    translate_two_operator(inst, "mul");
 }
 
 /// @brief 整数除法指令翻译成ARM32汇编
@@ -320,9 +320,9 @@ void InstSelectorArm32::translate_mod_int32(IRInst * inst)
 
 /// @brief 整数求负指令翻译成ARM32汇编
 /// @param inst IR指令
-void InstSelectorArm32::translate_minus_int32(IRInst * inst)
+void InstSelectorArm32::translate_neg_int32(IRInst * inst)
 {
-    translate_one_operator(inst, "minus");
+    translate_one_operator(inst, "neg");
 }
 
 /// @brief 函数调用指令翻译成ARM32汇编

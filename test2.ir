@@ -1,0 +1,27 @@
+i32 sum(i32 e, i32 f)
+{
+	entry
+	%t1 = add i32 e, i32 f
+	%l0 = i32 %t1
+	goto L0
+L0:
+	exit i32 %l0
+}
+i32 main()
+{
+	entry
+	a = i32 5
+	%t2 = add i32 a, i32 7
+	%t3 = add i32 %t2, i32 a
+	b = i32 %t3
+	call void @putint(i32 b)
+	%t4 = sub i32 3, i32 a
+	%t5 = sub i32 b, i32 %t4
+	a = i32 %t5
+	%t6 = sub i32 b, i32 10
+	b = i32 %t6
+	%t7 = call i32 @sum(i32 a, i32 b)
+	call void @putint(i32 %t7)
+L1:
+	exit i32 0
+}
