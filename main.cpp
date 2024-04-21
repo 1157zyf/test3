@@ -17,7 +17,6 @@
 #endif
 
 #include "AST.h"
-#include "Antlr4Executor.h"
 #include "CodeGenerator.h"
 #include "CodeGeneratorArm32.h"
 #include "CodeSimulator.h"
@@ -241,10 +240,7 @@ int main(int argc, char * argv[])
 
         // 创建词法语法分析器
         FrontEndExecutor * frontEndExecutor;
-        if (gFrontEndAntlr4) {
-            // Antlr4
-            frontEndExecutor = new Antlr4Executor(gInputFile);
-        } else if (gFrontEndRecursiveDescentParsing) {
+        if (gFrontEndRecursiveDescentParsing) {
             // 递归下降分析法
             frontEndExecutor = new RecursiveDescentExecutor(gInputFile);
         } else {

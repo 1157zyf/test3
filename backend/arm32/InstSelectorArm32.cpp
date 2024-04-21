@@ -308,7 +308,7 @@ void InstSelectorArm32::translate_mul_int32(IRInst * inst)
 /// @param inst IR指令
 void InstSelectorArm32::translate_div_int32(IRInst * inst)
 {
-    translate_two_operator(inst, "div");
+    translate_two_operator(inst, "sdiv");
 }
 
 /// @brief 整数取模指令翻译成ARM32汇编
