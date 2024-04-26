@@ -232,6 +232,11 @@ if(CMAKE_HOST_WIN32)
 	endif()
 endif()
 
+# # LLDB调试运行时string不能显示，这是由于clang默认优化时减少调试信息导致的，因此这里指定选项不要优化调试信息
+if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+	target_compile_options(${PROJECT_NAME} PRIVATE -fstandalone-debug)
+endif()
+
 # 通过flex产生词法分析源代码
 add_custom_command(
 	OUTPUT
