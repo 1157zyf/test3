@@ -15,6 +15,7 @@
 
 #include "AST.h"
 #include "Common.h"
+#include "ValueType.h"
 
 using namespace std;
 
@@ -56,8 +57,26 @@ string getNodeName(ast_node * astnode)
         case ast_operator_type::AST_OP_RETURN_STATEMENT:
             nodeName = "return";
             break;
+        case ast_operator_type::AST_OP_VARDECL:
+            nodeName = "VarDecl:" + astnode->name;
+            break;
+        case ast_operator_type::AST_OP_FUNC_DECL:
+            nodeName = "func-decl:" + astnode->name;
+            break;
         case ast_operator_type::AST_OP_FUNC_DEF:
-            nodeName = "func:" + astnode->name;
+            nodeName = "func-def:" + astnode->name;
+            break;
+        case ast_operator_type::AST_OP_FUNC_TYPE:
+            nodeName = "func-type";
+            break;
+        case ast_operator_type::AST_OP_INT_TYPE:
+            nodeName = "int";
+            break;
+        case ast_operator_type::AST_OP_VOID_TYPE:
+            nodeName = "void";
+            break;
+        case ast_operator_type::AST_OP_FUNCTION_TYPE:
+            nodeName = "function";
             break;
         case ast_operator_type::AST_OP_FUNC_FORMAL_PARAMS:
             nodeName = "formal-params";
@@ -84,6 +103,33 @@ string getNodeName(ast_node * astnode)
             break;
         case ast_operator_type::AST_OP_MOD:
             nodeName = "%";
+            break;
+        case ast_operator_type::AST_OP_LT:
+            nodeName = "<";
+            break;
+        case ast_operator_type::AST_OP_LE:
+            nodeName = "<=";
+            break;
+        case ast_operator_type::AST_OP_GT:
+            nodeName = ">";
+            break;
+        case ast_operator_type::AST_OP_GE:
+            nodeName = ">=";
+            break;
+        case ast_operator_type::AST_OP_EQ:
+            nodeName = "==";
+            break;
+        case ast_operator_type::AST_OP_NEQ:
+            nodeName = "!=";
+            break;
+        case ast_operator_type::AST_OP_AND:
+            nodeName = "&&";
+            break;
+        case ast_operator_type::AST_OP_OR:
+            nodeName = "||";
+            break;
+        case ast_operator_type::AST_OP_NOT:
+            nodeName = "!";
             break;
         default:
             nodeName = "unknown";

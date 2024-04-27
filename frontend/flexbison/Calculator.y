@@ -32,12 +32,14 @@ void yyerror(char * msg);
 // 对于单个字符的算符或者分隔符，在词法分析时可直返返回对应的字符即可
 %token <integer_num> T_DIGIT
 %token <var_id> T_ID
-%token T_FUNC T_RETURN T_ADD T_SUB T_MULT T_DIV T_MOD
+%token T_FUNC T_RETURN T_VOID T_INT T_ADD T_SUB T_MULT T_DIV T_MOD
+%token T_LT T_LE T_GT T_GE T_EQ T_NEQ T_AND T_OR T_NOT
 
 %type <node> CompileUnit
 
 // 指定文法的非终结符号，<>可指定文法属性
 %type <node> FuncDef
+%type <node> FuncType
 %type <node> FuncFormalParams
 %type <node> Block
 
@@ -48,8 +50,11 @@ void yyerror(char * msg);
 %type <node> BlockItem
 
 %type <node> Statement
+%type <node> VarDecl
+%type <node> BasicType
+
 %type <node> Expr
-%type <node> AddExp MultExp MinusExp UnaryExp LVal
+%type <node> LogicExp CompExp AddExp MultExp MinusExp UnaryExp LVal
 %type <node> PrimaryExp
 %type <node> RealParamList
 
@@ -72,12 +77,39 @@ CompileUnit : FuncDef {
     }
     ;
 
-// 函数定义
-FuncDef : T_FUNC T_ID '(' ')' Block  {
-        $$ = create_func_def($2.lineno, $2.id, $5, nullptr);
+// 函数定义和声明(有block是定义，无block是声明)
+FuncDef : FuncType T_ID '(' ')' Block  {
+        $$ = create_func_def($1, $2.lineno, $2.id, $5, nullptr);
     }
-    | T_FUNC T_ID '(' FuncFormalParams ')' Block {
-        $$ = create_func_def($2.lineno, $2.id, $6, $4);
+    | FuncType T_ID '(' FuncFormalParams ')' Block {
+        $$ = create_func_def($1, $2.lineno, $2.id, $6, $4);
+    }
+    | FuncType T_ID '(' ')' ';'{
+        $$ = create_func_decl($1, $2.lineno, $2.id, nullptr);
+    }
+	| FuncType T_ID '(' FuncFormalParams ')' ';'{
+        $$ = create_func_decl($1, $2.lineno, $2.id, $4);
+    }
+    ;
+
+//函数类型
+FuncType : T_FUNC {
+	    ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_FUNCTION_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_VOID;
+
+        $$ = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+    }
+	| T_INT {
+        ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_INT;
+
+        $$ = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+    }
+	| T_VOID {
+        ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_VOID_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_VOID;
+		
+        $$ = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
     }
     ;
 
@@ -91,8 +123,9 @@ FuncFormalParams : FuncFormalParam  {
     ;
 
 // 函数参数，目前只支持基本类型参数
-FuncFormalParam : FuncBasicParam  {
-        $$ = $1;
+FuncFormalParam : T_INT FuncBasicParam  {
+	    $$ = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, $2, nullptr);
+
     }
     ;
 
@@ -164,14 +197,90 @@ Statement : T_ID '=' Expr ';' {
         // 返回语句
         $$ = new_ast_node(ast_operator_type::AST_OP_RETURN_STATEMENT, $2, nullptr);
     }
+	| VarDecl ';'{
+        $$ = $1;
+	}
     ;
 
-Expr : AddExp { 
+//变量定义
+VarDecl : BasicType T_ID{
+	    $$ = create_var_decl($2.lineno, $2.id, $1, nullptr);
+    }
+    | BasicType T_ID '=' Expr {
+	    $$ = create_var_decl($2.lineno, $2.id, $1, $4);
+    }
+	;
+BasicType : T_INT {
+	    $$ = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+    }
+	;
+
+Expr : LogicExp { 
         $$ = $1; 
     }
     ;
+/* 逻辑表达式 */
+LogicExp : CompExp {
+        $$ = $1;
+	}
+    | LogicExp T_AND CompExp {
+        /* Expr && Term */
 
-/* 加法表达式 */
+        // 创建一个AST_OP_MULT类型的中间节点，孩子为Expr($1)和Term($3)
+        $$ = new_ast_node(ast_operator_type::AST_OP_AND, $1, $3, nullptr);
+	}
+    | LogicExp T_OR CompExp {
+        /* Expr || Term */
+
+        // 创建一个AST_OP_DIV类型的中间节点，孩子为Expr($1)和Term($3)
+        $$ = new_ast_node(ast_operator_type::AST_OP_OR, $1, $3, nullptr);
+	}
+    ;
+
+/*比较表达式*/
+CompExp : AddExp {
+        /* Expr = Term */
+        $$ = $1;
+    }
+    | CompExp T_LT AddExp {
+        /* Expr < Term */
+
+        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        $$ = new_ast_node(ast_operator_type::AST_OP_LT, $1, $3, nullptr);
+    }
+	| CompExp T_LE AddExp {
+        /* Expr <= Term */
+
+        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        $$ = new_ast_node(ast_operator_type::AST_OP_LE, $1, $3, nullptr);
+    }
+	| CompExp T_GT AddExp {
+        /* Expr > Term */
+
+        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        $$ = new_ast_node(ast_operator_type::AST_OP_GT, $1, $3, nullptr);
+    }
+	| CompExp T_GE AddExp {
+        /* Expr >= Term */
+
+        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        $$ = new_ast_node(ast_operator_type::AST_OP_GE, $1, $3, nullptr);
+    }
+	| CompExp T_EQ AddExp {
+        /* Expr == Term */
+
+        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        $$ = new_ast_node(ast_operator_type::AST_OP_EQ, $1, $3, nullptr);
+    }
+	| CompExp T_NEQ AddExp {
+        /* Expr != Term */
+
+        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        $$ = new_ast_node(ast_operator_type::AST_OP_NEQ, $1, $3, nullptr);
+    }
+	;
+
+/* 加减表达式 */
 AddExp : MultExp {
         /* Expr = Term */
         $$ = $1;
@@ -190,6 +299,7 @@ AddExp : MultExp {
     }
 	;
 
+/* 乘除模 */
 MultExp : MinusExp {
         $$ = $1;
 	}
@@ -213,11 +323,15 @@ MultExp : MinusExp {
 	}
     ;
 
+/* 单目 */
 MinusExp : UnaryExp {
         $$ = $1;
 	}
     |T_SUB UnaryExp {
 		$$ = new_ast_node(ast_operator_type::AST_OP_SUB, $2, nullptr);
+	}
+	|T_NOT UnaryExp {
+		$$ = new_ast_node(ast_operator_type::AST_OP_NOT, $2, nullptr);
 	}
 	;
 
@@ -256,6 +370,8 @@ LVal : T_ID {
 		// 对于字符型字面量的字符串空间需要释放，因词法用到了strdup进行了字符串复制
 		free($1.id);
     }
+	;
+
 /* 实参列表 */
 RealParamList : Expr {
         $$ = create_contain_node(ast_operator_type::AST_OP_FUNC_REAL_PARAMS, $1);

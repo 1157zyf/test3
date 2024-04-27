@@ -196,15 +196,17 @@ void free_ast()
 }
 
 /// @brief 创建函数定义类型的内部AST节点
+/// @param func_type 返回类型
 /// @param line_no 行号
 /// @param func_name 函数名
 /// @param block 函数体语句块
 /// @param params 函数形参，可以没有参数
 /// @return 创建的节点
-ast_node * create_func_def(uint32_t line_no, const char * func_name, ast_node * block, ast_node * params)
+ast_node *
+create_func_def(ast_node * func_type, uint32_t line_no, const char * func_name, ast_node * block, ast_node * params)
 {
     ast_node * node = new ast_node(ast_operator_type::AST_OP_FUNC_DEF, line_no);
-    node->type.type = BasicType::TYPE_VOID;
+    node->type.type = func_type->sons[0]->type.type;
     node->name = func_name;
 
     // 如果没有参数，则创建参数节点
@@ -212,16 +214,75 @@ ast_node * create_func_def(uint32_t line_no, const char * func_name, ast_node * 
         params = new ast_node(ast_operator_type::AST_OP_FUNC_FORMAL_PARAMS);
     }
 
+    // 如果没有类型，则创建类型节点
+    if (!func_type) {
+        func_type = new ast_node(ast_operator_type::AST_OP_FUNC_TYPE);
+    }
+
     // 如果没有函数体，则创建函数体，也就是语句块
     if (!block) {
         block = new ast_node(ast_operator_type::AST_OP_BLOCK);
     }
+    node->sons.push_back(func_type);
+    func_type->parent = node;
 
     node->sons.push_back(params);
     params->parent = node;
 
     node->sons.push_back(block);
     block->parent = node;
+
+    return node;
+}
+
+/// @brief 创建函数声明类型的内部AST节点
+/// @param func_type 返回类型
+/// @param line_no 行号
+/// @param func_name 函数名
+/// @param params 函数形参，可以没有参数
+/// @return 创建的节点
+ast_node * create_func_decl(ast_node * func_type, uint32_t line_no, const char * func_name, ast_node * params)
+{
+    ast_node * node = new ast_node(ast_operator_type::AST_OP_FUNC_DECL, line_no);
+    node->type.type = func_type->sons[0]->type.type;
+    node->name = func_name;
+
+    // 如果没有参数，则创建参数节点
+    if (!params) {
+        params = new ast_node(ast_operator_type::AST_OP_FUNC_FORMAL_PARAMS);
+    }
+
+    // 如果没有类型，则创建类型节点
+    if (!func_type) {
+        func_type = new ast_node(ast_operator_type::AST_OP_FUNC_TYPE);
+    }
+
+    node->sons.push_back(func_type);
+    func_type->parent = node;
+
+    node->sons.push_back(params);
+    params->parent = node;
+
+    return node;
+}
+
+/// @brief 创建变量定义类型的内部AST节点
+/// @param line_no 行号
+/// @param var_name 变量名
+/// @param var_type 变量类型
+/// @param var_as 变量赋值
+/// @return 创建的节点
+ast_node * create_var_decl(uint32_t line_no, const char * var_name, ast_node * var_type, ast_node * var_as)
+{
+    ast_node * node = new ast_node(ast_operator_type::AST_OP_VARDECL, line_no);
+    node->type.type = BasicType::TYPE_INT;
+    node->name = var_name;
+
+    node->sons.push_back(var_type);
+    var_type->parent = node;
+
+    node->sons.push_back(var_as);
+    var_as->parent = node;
 
     return node;
 }

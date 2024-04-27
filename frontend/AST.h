@@ -27,7 +27,7 @@ enum class ast_operator_type : int {
     /// @brief 无符号整数字面量叶子节点
     AST_OP_LEAF_LITERAL_UINT,
 
-    /// @brief  无符号整数字面量叶子节点
+    /// @brief  无符号实数字面量叶子节点
     AST_OP_LEAF_LITERAL_FLOAT,
 
     /// @brief 变量ID叶子节点
@@ -58,8 +58,25 @@ enum class ast_operator_type : int {
     /// @brief return语句运算符
     AST_OP_RETURN_STATEMENT,
 
-    /// @brief 函数定义运算符，函数名和返回值类型作为节点的属性，自左到右孩子：AST_OP_FUNC_FORMAL_PARAMS、AST_OP_BLOCK
+    /// @brief 变量定义运算符
+    AST_OP_VARDECL,
+
+    /// @brief
+    /// 函数声明运算符，函数名和返回值类型作为节点的属性，自左到右孩子：AST_OP_FUNC_TYPE、AST_OP_FUNC_FORMAL_PARAMS
+    AST_OP_FUNC_DECL,
+
+    /// @brief
+    /// 函数定义运算符，函数名和返回值类型作为节点的属性，自左到右孩子：AST_OP_FUNC_TYPE、AST_OP_FUNC_FORMAL_PARAMS、AST_OP_BLOCK
     AST_OP_FUNC_DEF,
+
+    /// @brief 函数返回类型，孩子可能是void，可能是int，也可能是预留的function
+    AST_OP_FUNC_TYPE,
+    /// @brief int类型
+    AST_OP_INT_TYPE,
+    /// @brief void类型
+    AST_OP_VOID_TYPE,
+    /// @brief function类型
+    AST_OP_FUNCTION_TYPE,
 
     /// @brief 形式参数列表运算符，可包含多个孩子：AST_OP_FUNC_FORMAL_PARAM
     AST_OP_FUNC_FORMAL_PARAMS,
@@ -77,6 +94,7 @@ enum class ast_operator_type : int {
     AST_OP_COMPILE_UNIT,
 
     // TODO 抽象语法树其它内部节点运算符追加
+
     /// @brief 二元运算符*
     AST_OP_MULT,
 
@@ -85,6 +103,33 @@ enum class ast_operator_type : int {
 
     /// @brief 二元运算符%
     AST_OP_MOD,
+
+    /// @brief 关系运算符<
+    AST_OP_LT,
+
+    /// @brief 关系运算符<=
+    AST_OP_LE,
+
+    /// @brief 关系运算符>
+    AST_OP_GT,
+
+    /// @brief 关系运算符>=
+    AST_OP_GE,
+
+    /// @brief 关系运算符==
+    AST_OP_EQ,
+
+    /// @brief 关系运算符!=
+    AST_OP_NEQ,
+
+    /// @brief 逻辑运算符&&
+    AST_OP_AND,
+
+    /// @brief 逻辑运算符||
+    AST_OP_OR,
+
+    /// @brief 逻辑运算符!
+    AST_OP_NOT,
 
     /// @brief 最大标识符，表示非法运算符
     AST_OP_MAX,
@@ -190,12 +235,34 @@ void free_ast();
 extern ast_node * ast_root;
 
 /// @brief 创建函数定义类型的内部AST节点
+/// @param func_type 返回类型
 /// @param line_no 行号
 /// @param func_name 函数名
 /// @param block 函数体语句块
 /// @param params 函数形参，可以没有参数
 /// @return 创建的节点
-ast_node * create_func_def(uint32_t line_no, const char * func_name, ast_node * block, ast_node * params = nullptr);
+ast_node * create_func_def(ast_node * func_type,
+                           uint32_t line_no,
+                           const char * func_name,
+                           ast_node * block,
+                           ast_node * params = nullptr);
+
+/// @brief 创建函数声明类型的内部AST节点
+/// @param func_type 返回类型
+/// @param line_no 行号
+/// @param func_name 函数名
+/// @param params 函数形参，可以没有参数
+/// @return 创建的节点
+ast_node *
+create_func_decl(ast_node * func_type, uint32_t line_no, const char * func_name, ast_node * params = nullptr);
+
+/// @brief 创建变量定义类型的内部AST节点
+/// @param line_no 行号
+/// @param var_name 变量名
+/// @param var_type 变量类型
+/// @param var_as 变量赋值
+/// @return 创建的节点
+ast_node * create_var_decl(uint32_t line_no, const char * var_name, ast_node * var_type, ast_node * var_as);
 
 /// @brief 创建函数形式参数的节点
 /// @param line_no 行号

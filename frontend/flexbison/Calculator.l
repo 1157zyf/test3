@@ -69,6 +69,8 @@ white_line  [\r\n]
                 ; // 忽略行注释
             }
 
+
+
 [0-9]|[1-9]{d}+		{
                 // 词法识别十进制无符号整数，注意对于负数，则需要识别为负号和无符号数两个Token
                 yylval.integer_num.val = (uint32_t)strtol(yytext, (char **)NULL, 10);
@@ -98,6 +100,14 @@ white_line  [\r\n]
                 // return关键字
                 return T_RETURN;
             }
+"void"  {
+                // void类型
+                return T_VOID;
+            }
+"int"    {
+                // int类型
+                return T_INT;
+            }
 
 {l}+({d}|{l})* {
                 yylval.var_id.id = strdup(yytext);
@@ -115,6 +125,18 @@ white_line  [\r\n]
 "*"			{return T_MULT;}
 "/"			{return T_DIV;}
 "%"         {return T_MOD;}
+
+
+"<"			{return T_LT;}
+"<="		{return T_LE;}
+">"         {return T_GT;}
+">="		{return T_GE;}
+"=="         {return T_EQ;}
+"!="		{return T_NEQ;}
+
+"&&"		{return T_AND;}
+"||"		{return T_OR;}
+"!"         {return T_NOT;}
 
 "="         {return '=';}
 ";"         {return ';';}
