@@ -39,7 +39,6 @@ void yyerror(char * msg);
 
 // 指定文法的非终结符号，<>可指定文法属性
 %type <node> FuncDef
-%type <node> FuncType
 %type <node> FuncFormalParams
 %type <node> Block
 
@@ -51,7 +50,6 @@ void yyerror(char * msg);
 
 %type <node> Statement
 %type <node> VarDecl
-%type <node> BasicType
 
 %type <node> Expr
 %type <node> LogicExp CompExp AddExp MultExp MinusExp UnaryExp LVal
@@ -78,38 +76,100 @@ CompileUnit : FuncDef {
     ;
 
 // 函数定义和声明(有block是定义，无block是声明)
-FuncDef : FuncType T_ID '(' ')' Block  {
-        $$ = create_func_def($1, $2.lineno, $2.id, $5, nullptr);
-    }
-    | FuncType T_ID '(' FuncFormalParams ')' Block {
-        $$ = create_func_def($1, $2.lineno, $2.id, $6, $4);
-    }
-    | FuncType T_ID '(' ')' ';'{
-        $$ = create_func_decl($1, $2.lineno, $2.id, nullptr);
-    }
-	| FuncType T_ID '(' FuncFormalParams ')' ';'{
-        $$ = create_func_decl($1, $2.lineno, $2.id, $4);
-    }
-    ;
-
-//函数类型
-FuncType : T_FUNC {
+FuncDef : T_FUNC T_ID '(' ')' Block  {
 	    ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_FUNCTION_TYPE, nullptr);
 		type_node->type.type = BasicType::TYPE_VOID;
 
-        $$ = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_def(type, $2.lineno, $2.id, $5, nullptr);
+
     }
-	| T_INT {
-        ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+    | T_INT T_ID '(' ')' Block  {
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
 		type_node->type.type = BasicType::TYPE_INT;
 
-        $$ = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_def(type, $2.lineno, $2.id, $5, nullptr);
+
     }
-	| T_VOID {
-        ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_VOID_TYPE, nullptr);
+    | T_VOID T_ID '(' ')' Block  {
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_VOID_TYPE, nullptr);
 		type_node->type.type = BasicType::TYPE_VOID;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_def(type, $2.lineno, $2.id, $5, nullptr);
+
+    }
+    | T_FUNC T_ID '(' FuncFormalParams ')' Block {
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_FUNCTION_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_VOID;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_def(type, $2.lineno, $2.id, $6, $4);
+
+    }
+    | T_INT T_ID '(' FuncFormalParams ')' Block {
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_INT;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_def(type, $2.lineno, $2.id, $6, $4);
+
+    }
+    | T_VOID T_ID '(' FuncFormalParams ')' Block {
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_VOID_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_VOID;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_def(type, $2.lineno, $2.id, $6, $4);
+
+    }
+    | T_FUNC T_ID '(' ')' ';'{
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_FUNCTION_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_VOID;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_decl(type, $2.lineno, $2.id, nullptr);
+
+    }
+	| T_INT T_ID '(' ')' ';'{
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_INT;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_decl(type, $2.lineno, $2.id, nullptr);
+
+    }
+	| T_VOID T_ID '(' ')' ';'{
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_VOID_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_VOID;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_decl(type, $2.lineno, $2.id, nullptr);
+
+    }
+	| T_FUNC T_ID '(' FuncFormalParams ')' ';'{
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_FUNCTION_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_VOID;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_decl(type, $2.lineno, $2.id, $4);
 		
-        $$ = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+    }
+	| T_INT T_ID '(' FuncFormalParams ')' ';'{
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_INT;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_decl(type, $2.lineno, $2.id, $4);
+
+    }
+	| T_VOID T_ID '(' FuncFormalParams ')' ';'{
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_VOID_TYPE, nullptr);
+		type_node->type.type = BasicType::TYPE_VOID;
+
+        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
+        $$ = create_func_decl(type, $2.lineno, $2.id, $4);
     }
     ;
 
@@ -154,7 +214,7 @@ BlockItemList : BlockItem {
     | BlockItemList BlockItem  {
         // 采用左递归的文法产生式，可以使得Block节点在上个产生式创建，后续递归追加孩子节点
         // 请注意，不要采用右递归，左递归翻遍孩子的追加
-        // BlockItem($2)作为Block($1)的孩子 
+        // BlockItem($2)作为Block($1)的孩子
         $$ = insert_ast_node($1, $2);
     }
     ;
@@ -202,15 +262,22 @@ Statement : T_ID '=' Expr ';' {
     ;
 
 //变量定义
-VarDecl : BasicType T_ID '=' Expr {
-	    $$ = create_var_decl($2.lineno, $2.id, $1, $4);
+VarDecl : T_INT T_ID '=' Expr {
+	    //新建int类型节点
+	    ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+
+	    // 变量节点
+	    ast_node * id_node = new_ast_leaf_node(var_id_attr{$2.id, $2.lineno});
+
+        // 创建一个AST_OP_ASSIGN类型的中间节点，孩子为Id和Expr($4)
+        ast_node * as_node = new_ast_node(ast_operator_type::AST_OP_ASSIGN, id_node, $4, nullptr);
+	    $$ = create_var_decl($2.lineno, $2.id, type_node, as_node);
     }
-	| BasicType T_ID {
-	    $$ = create_var_decl($2.lineno, $2.id, $1, nullptr);
-    }
-	;
-BasicType : T_INT {
-	    $$ = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+	| T_INT T_ID {
+		//新建int类型节点
+	    ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+
+	    $$ = create_var_decl($2.lineno, $2.id, type_node, nullptr);
     }
 	;
 
