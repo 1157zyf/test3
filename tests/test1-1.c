@@ -7,8 +7,6 @@ int main()
 {
     int b;
     int a = b + 3;
-    int c = 10;
-
     a = 0;
     b = 7;
     putint(b);

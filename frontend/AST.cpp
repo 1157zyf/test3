@@ -281,8 +281,10 @@ ast_node * create_var_decl(uint32_t line_no, const char * var_name, ast_node * v
     node->sons.push_back(var_type);
     var_type->parent = node;
 
-    node->sons.push_back(var_as);
-    var_as->parent = node;
+    if (var_as) {
+        node->sons.push_back(var_as);
+        var_as->parent = node;
+    }
 
     return node;
 }

@@ -125,7 +125,6 @@ FuncFormalParams : FuncFormalParam  {
 // 函数参数，目前只支持基本类型参数
 FuncFormalParam : T_INT FuncBasicParam  {
 	    $$ = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, $2, nullptr);
-
     }
     ;
 
@@ -203,11 +202,11 @@ Statement : T_ID '=' Expr ';' {
     ;
 
 //变量定义
-VarDecl : BasicType T_ID{
-	    $$ = create_var_decl($2.lineno, $2.id, $1, nullptr);
-    }
-    | BasicType T_ID '=' Expr {
+VarDecl : BasicType T_ID '=' Expr {
 	    $$ = create_var_decl($2.lineno, $2.id, $1, $4);
+    }
+	| BasicType T_ID {
+	    $$ = create_var_decl($2.lineno, $2.id, $1, nullptr);
     }
 	;
 BasicType : T_INT {
@@ -215,7 +214,7 @@ BasicType : T_INT {
     }
 	;
 
-Expr : LogicExp { 
+Expr : LogicExp {
         $$ = $1; 
     }
     ;
