@@ -52,7 +52,7 @@ void yyerror(char * msg);
 %type <node> VarDecl
 
 %type <node> Expr
-%type <node> LogicExp CompExp AddExp MultExp MinusExp UnaryExp LVal
+%type <node> OrExp AndExp CompExp AddExp MultExp MinusExp UnaryExp LVal
 %type <node> PrimaryExp
 %type <node> RealParamList
 
@@ -281,28 +281,30 @@ VarDecl : T_INT T_ID '=' Expr {
     }
 	;
 
-Expr : LogicExp {
-        $$ = $1; 
+Expr : OrExp {
+        $$ = $1;
     }
     ;
 /* 逻辑表达式 */
-LogicExp : CompExp {
+OrExp : AndExp {
         $$ = $1;
 	}
-    | LogicExp T_AND CompExp {
-        /* Expr && Term */
-
-        // 创建一个AST_OP_MULT类型的中间节点，孩子为Expr($1)和Term($3)
-        $$ = new_ast_node(ast_operator_type::AST_OP_AND, $1, $3, nullptr);
-	}
-    | LogicExp T_OR CompExp {
+    | OrExp T_OR AndExp {
         /* Expr || Term */
 
         // 创建一个AST_OP_DIV类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_OR, $1, $3, nullptr);
 	}
     ;
+AndExp : CompExp {
+	    $$ = $1;
+    }
+    | AndExp T_AND CompExp {
+        /* Expr && Term */
 
+        // 创建一个AST_OP_MULT类型的中间节点，孩子为Expr($1)和Term($3)
+        $$ = new_ast_node(ast_operator_type::AST_OP_AND, $1, $3, nullptr);
+	}
 /*比较表达式*/
 CompExp : AddExp {
         /* Expr = Term */
