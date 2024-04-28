@@ -5,7 +5,7 @@ int putint(int a, int b);
 int g = 3;
 int main()
 {
-    int b;
+    int b, c = 5, d = g + 3 * 2;
     int a = b + 3;
 
     putint(b);

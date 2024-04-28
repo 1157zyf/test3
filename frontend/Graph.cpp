@@ -57,6 +57,9 @@ string getNodeName(ast_node * astnode)
         case ast_operator_type::AST_OP_RETURN_STATEMENT:
             nodeName = "return";
             break;
+        case ast_operator_type::AST_OP_VARLIST:
+            nodeName = "VarList";
+            break;
         case ast_operator_type::AST_OP_VARDECL:
             nodeName = "VarDecl:" + astnode->name;
             break;

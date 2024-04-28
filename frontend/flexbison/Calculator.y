@@ -49,6 +49,7 @@ void yyerror(char * msg);
 %type <node> BlockItem
 
 %type <node> Statement
+%type <node> VarDecls
 %type <node> VarDecl
 
 %type <node> Expr
@@ -256,11 +257,32 @@ Statement : T_ID '=' Expr ';' {
         // 返回语句
         $$ = new_ast_node(ast_operator_type::AST_OP_RETURN_STATEMENT, $2, nullptr);
     }
-	| VarDecl ';'{
+	| VarDecls ';'{
         $$ = $1;
 	}
     ;
 
+//变量列表
+VarDecls : VarDecl {
+	    $$ = create_contain_node(ast_operator_type::AST_OP_VARLIST, $1);
+    }  
+	| VarDecls ',' T_ID {
+        ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+		ast_node * var_node = create_var_decl($3.lineno, $3.id, type_node, nullptr);
+		$$ = insert_ast_node($1, var_node);
+	}
+	|  VarDecls ',' T_ID '=' Expr {
+		//新建int类型节点
+	    ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+	    // 变量节点
+	    ast_node * id_node = new_ast_leaf_node(var_id_attr{$3.id, $3.lineno});
+
+        // 创建一个AST_OP_ASSIGN类型的中间节点，孩子为Id和Expr($5)
+        ast_node * as_node = new_ast_node(ast_operator_type::AST_OP_ASSIGN, id_node, $5, nullptr);
+	    ast_node * var_node = create_var_decl($3.lineno, $3.id, type_node, as_node);
+		$$ = insert_ast_node($1, var_node);
+	}
+	;
 //变量定义
 VarDecl : T_INT T_ID '=' Expr {
 	    //新建int类型节点
