@@ -58,11 +58,20 @@ enum class ast_operator_type : int {
     /// @brief return语句运算符
     AST_OP_RETURN_STATEMENT,
 
+    /// @brief if-else语句运算符
+    AST_OP_IF_ELSE,
+
+    /// @brief while语句运算符
+    AST_OP_WHILE,
+
     /// @brief 变量定义运算符
     AST_OP_VARDECL,
 
     /// @brief 变量定义列表
     AST_OP_VARLIST,
+
+    /// @brief 数组定义运算符
+    AST_OP_ARRAY_DECL,
 
     /// @brief
     /// 函数声明运算符，函数名和返回值类型作为节点的属性，自左到右孩子：AST_OP_FUNC_TYPE、AST_OP_FUNC_FORMAL_PARAMS

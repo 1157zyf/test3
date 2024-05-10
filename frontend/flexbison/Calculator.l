@@ -108,6 +108,20 @@ white_line  [\r\n]
                 // int类型
                 return T_INT;
             }
+"while"   {
+	            //while关键字
+				return T_WHILE;
+            }
+
+"if"   {
+	            //if关键字
+				return T_IF;
+            }
+
+"else"   {
+	            //else关键字
+				return T_ELSE;
+            }
 
 {l}+({d}|{l})* {
                 yylval.var_id.id = strdup(yytext);
@@ -118,6 +132,8 @@ white_line  [\r\n]
 
 "("			{return '(';}
 ")"			{return ')';}
+"["			{return '[';}
+"]"			{return ']';}
 
 "-"			{return T_SUB;}
 "+"			{return T_ADD;}

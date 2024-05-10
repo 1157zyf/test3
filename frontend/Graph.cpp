@@ -60,8 +60,16 @@ string getNodeName(ast_node * astnode)
         case ast_operator_type::AST_OP_VARLIST:
             nodeName = "VarList";
             break;
-        case ast_operator_type::AST_OP_VARDECL:
-            nodeName = "VarDecl:" + astnode->name;
+        case ast_operator_type::AST_OP_VARDECL: {
+            if (astnode->name != "") {
+                nodeName = "VarDecl:" + astnode->name;
+                break;
+            }
+            nodeName = "VarDecl";
+            break;
+        }
+        case ast_operator_type::AST_OP_ARRAY_DECL:
+            nodeName = "Array";
             break;
         case ast_operator_type::AST_OP_FUNC_DECL:
             nodeName = "func-decl:" + astnode->name;

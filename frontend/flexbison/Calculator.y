@@ -34,6 +34,7 @@ void yyerror(char * msg);
 %token <var_id> T_ID
 %token T_FUNC T_RETURN T_VOID T_INT T_ADD T_SUB T_MULT T_DIV T_MOD
 %token T_LT T_LE T_GT T_GE T_EQ T_NEQ T_AND T_OR T_NOT
+%token T_WHILE T_IF T_ELSE
 
 %type <node> CompileUnit
 
@@ -56,6 +57,7 @@ void yyerror(char * msg);
 %type <node> OrExp AndExp CompExp AddExp MultExp MinusExp UnaryExp LVal
 %type <node> PrimaryExp
 %type <node> RealParamList
+%type <node> Array
 
 %%
 
@@ -282,6 +284,12 @@ VarDecls : VarDecl {
 	    ast_node * var_node = create_var_decl($3.lineno, $3.id, type_node, as_node);
 		$$ = insert_ast_node($1, var_node);
 	}
+	| VarDecls ',' T_ID Array{
+		// 创建数组节点
+		ast_node * id_node = new_ast_leaf_node(var_id_attr{$3.id, $3.lineno});
+		ast_node * array = new_ast_node(ast_operator_type::AST_OP_VARDECL, id_node, $4, nullptr);
+		$$ = insert_ast_node($1, array);
+	}
 	;
 //变量定义
 VarDecl : T_INT T_ID '=' Expr {
@@ -301,7 +309,25 @@ VarDecl : T_INT T_ID '=' Expr {
 
 	    $$ = create_var_decl($2.lineno, $2.id, type_node, nullptr);
     }
+	| T_INT T_ID Array{
+        // 创建数组节点
+		ast_node * id_node = new_ast_leaf_node(var_id_attr{$2.id, $2.lineno});
+		$$ = new_ast_node(ast_operator_type::AST_OP_VARDECL, id_node, $3, nullptr);
+    }
 	;
+
+Array : '[' T_DIGIT ']' {
+        // 创建数组节点
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+		ast_node * digit_node = new_ast_leaf_node(digit_int_attr{$2.val, $2.lineno});
+		$$ = new_ast_node(ast_operator_type::AST_OP_ARRAY_DECL, digit_node, type_node, nullptr);
+    }
+    | '[' T_DIGIT ']' Array {
+		// 多维数组
+		ast_node * digit_node = new_ast_leaf_node(digit_int_attr{$2.val, $2.lineno});
+		$$ = new_ast_node(ast_operator_type::AST_OP_ARRAY_DECL, digit_node, $4, nullptr);
+    }
+    ;
 
 Expr : OrExp {
         $$ = $1;
