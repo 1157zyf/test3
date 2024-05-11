@@ -46,6 +46,9 @@ void yyerror(char * msg);
 %type <node> FuncFormalParam
 %type <node> FuncBasicParam
 
+%type <node> IfExpr
+%type <node> WhileExpr
+
 %type <node> BlockItemList
 %type <node> BlockItem
 
@@ -197,6 +200,34 @@ FuncBasicParam : T_ID {
     }
     ;
 
+// if语句
+IfExpr : T_IF '(' Expr ')' Block{
+		//创建if语句的节点
+		$$ = new_ast_node(ast_operator_type::AST_OP_IF, $3, $5, nullptr);
+	}
+	| T_IF '(' Expr ')' Block T_ELSE Block{
+		//创建if语句的节点
+		$$ = new_ast_node(ast_operator_type::AST_OP_IF, $3, $5, $7, nullptr);
+	}
+	| T_IF '(' Expr ')' Statement{
+		//创建if语句的节点
+		$$ = new_ast_node(ast_operator_type::AST_OP_IF, $3, $5, nullptr);
+	}
+	| T_IF '(' Expr ')' Statement T_ELSE Statement{
+		//创建if语句的节点
+		$$ = new_ast_node(ast_operator_type::AST_OP_IF, $3, $5, $7, nullptr);
+	}
+
+// while语句
+WhileExpr : T_WHILE '(' Expr ')' Block{
+		//创建while语句节点
+		$$ = new_ast_node(ast_operator_type::AST_OP_WHILE, $3, $5, nullptr);
+	}
+	| T_WHILE '(' Expr ')' Statement{
+		//创建while语句节点
+		$$ = new_ast_node(ast_operator_type::AST_OP_WHILE, $3, $5, nullptr);
+	}
+
 // 语句块
 Block : '{' '}' {
         // 语句块没有语句
@@ -226,6 +257,12 @@ BlockItemList : BlockItem {
 BlockItem : Statement  {
         $$ = $1;
     }
+	| IfExpr {
+		$$ = $1;
+	}
+	| WhileExpr {
+		$$ = $1;
+	}
     ;
 
 /* 语句 */

@@ -12,9 +12,9 @@ int main()
     int a = 0;
     if (a == 0) {
         putint(1);
-    } else
+    } else {
         putint(2);
-
+    }
     //类型二
     if (a != 0) {
         printf(3);

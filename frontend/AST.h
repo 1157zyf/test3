@@ -59,7 +59,7 @@ enum class ast_operator_type : int {
     AST_OP_RETURN_STATEMENT,
 
     /// @brief if-else语句运算符
-    AST_OP_IF_ELSE,
+    AST_OP_IF,
 
     /// @brief while语句运算符
     AST_OP_WHILE,

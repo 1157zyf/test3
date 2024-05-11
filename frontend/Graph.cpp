@@ -92,6 +92,12 @@ string getNodeName(ast_node * astnode)
         case ast_operator_type::AST_OP_FUNC_FORMAL_PARAMS:
             nodeName = "formal-params";
             break;
+        case ast_operator_type::AST_OP_IF:
+            nodeName = "if-else";
+            break;
+        case ast_operator_type::AST_OP_WHILE:
+            nodeName = "while";
+            break;
         case ast_operator_type::AST_OP_FUNC_FORMAL_PARAM:
             nodeName = astnode->name;
             break;
