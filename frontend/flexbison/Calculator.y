@@ -209,6 +209,10 @@ IfExpr : T_IF '(' Expr ')' Block{
 		//创建if语句的节点
 		$$ = new_ast_node(ast_operator_type::AST_OP_IF, $3, $5, $7, nullptr);
 	}
+	| T_IF '(' Expr ')' Block T_ELSE Statement{
+		//创建if语句的节点
+		$$ = new_ast_node(ast_operator_type::AST_OP_IF, $3, $5, $7, nullptr);
+	}
 	| T_IF '(' Expr ')' Statement{
 		//创建if语句的节点
 		$$ = new_ast_node(ast_operator_type::AST_OP_IF, $3, $5, nullptr);
@@ -217,6 +221,11 @@ IfExpr : T_IF '(' Expr ')' Block{
 		//创建if语句的节点
 		$$ = new_ast_node(ast_operator_type::AST_OP_IF, $3, $5, $7, nullptr);
 	}
+	| T_IF '(' Expr ')' Statement T_ELSE Block{
+		//创建if语句的节点
+		$$ = new_ast_node(ast_operator_type::AST_OP_IF, $3, $5, $7, nullptr);
+	}
+	;
 
 // while语句
 WhileExpr : T_WHILE '(' Expr ')' Block{
@@ -227,6 +236,7 @@ WhileExpr : T_WHILE '(' Expr ')' Block{
 		//创建while语句节点
 		$$ = new_ast_node(ast_operator_type::AST_OP_WHILE, $3, $5, nullptr);
 	}
+	;
 
 // 语句块
 Block : '{' '}' {

@@ -8,17 +8,16 @@ int main()
     // int a = b + 3;
 
     // int s[2][3], a[10];
-    //类型一
+
     int a = 0;
     if (a == 0) {
         putint(1);
-    } else {
+    } else
         putint(2);
-    }
-    //类型二
-    if (a != 0) {
-        printf(3);
-    }
 
+    while (1) {
+        int b = 0;
+        b = b * 3;
+    }
     return 0;
 }
