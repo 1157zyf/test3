@@ -31,12 +31,39 @@ IRGenerator::IRGenerator(ast_node * _root, SymbolTable * _symtab) : root(_root),
     ast2ir_handlers[ast_operator_type::AST_OP_LEAF_LITERAL_FLOAT] = &IRGenerator::ir_leaf_node_float;
     ast2ir_handlers[ast_operator_type::AST_OP_LEAF_VAR_ID] = &IRGenerator::ir_leaf_node_var_id;
 
-    /* 表达式运算， 加减乘除模 */
+    /* 表达式运算， 加减(取负)乘除模 */
     ast2ir_handlers[ast_operator_type::AST_OP_SUB] = &IRGenerator::ir_sub;
     ast2ir_handlers[ast_operator_type::AST_OP_ADD] = &IRGenerator::ir_add;
     ast2ir_handlers[ast_operator_type::AST_OP_MULT] = &IRGenerator::ir_mult;
     ast2ir_handlers[ast_operator_type::AST_OP_DIV] = &IRGenerator::ir_div;
     ast2ir_handlers[ast_operator_type::AST_OP_MOD] = &IRGenerator::ir_mod;
+
+    /* 比较运算 */
+    ast2ir_handlers[ast_operator_type::AST_OP_LT] = &IRGenerator::ir_cmp;
+    ast2ir_handlers[ast_operator_type::AST_OP_LE] = &IRGenerator::ir_cmp;
+    ast2ir_handlers[ast_operator_type::AST_OP_GT] = &IRGenerator::ir_cmp;
+    ast2ir_handlers[ast_operator_type::AST_OP_GE] = &IRGenerator::ir_cmp;
+    ast2ir_handlers[ast_operator_type::AST_OP_EQ] = &IRGenerator::ir_cmp;
+    ast2ir_handlers[ast_operator_type::AST_OP_NEQ] = &IRGenerator::ir_cmp;
+
+    /* 逻辑运算 */
+    ast2ir_handlers[ast_operator_type::AST_OP_AND] = &IRGenerator::ir_and;
+    ast2ir_handlers[ast_operator_type::AST_OP_OR] = &IRGenerator::ir_or;
+    ast2ir_handlers[ast_operator_type::AST_OP_NOT] = &IRGenerator::ir_not;
+
+    /* 变量定义、数组定义 */
+    // ast2ir_handlers[ast_operator_type::AST_OP_VARDECL] = &IRGenerator::ir_vardecl;
+    ast2ir_handlers[ast_operator_type::AST_OP_VARLIST] = &IRGenerator::ir_varlist;
+    ast2ir_handlers[ast_operator_type::AST_OP_ARRAY_DECL] = &IRGenerator::ir_array_decl;
+
+    /* 类型节点，无实际意义 */
+    ast2ir_handlers[ast_operator_type::AST_OP_FUNC_TYPE] = &IRGenerator::ir_type;
+    ast2ir_handlers[ast_operator_type::AST_OP_INT_TYPE] = &IRGenerator::ir_type;
+    // ast2ir_handlers[ast_operator_type::AST_OP_VOID_TYPE] = &IRGenerator::ir_type;
+
+    /* if-else、while语句 */
+    ast2ir_handlers[ast_operator_type::AST_OP_IF] = &IRGenerator::ir_if;
+    ast2ir_handlers[ast_operator_type::AST_OP_WHILE] = &IRGenerator::ir_while;
 
     /* 语句 */
     ast2ir_handlers[ast_operator_type::AST_OP_EXPR] = &IRGenerator::ir_expr_noshow;
@@ -63,6 +90,7 @@ IRGenerator::IRGenerator(ast_node * _root, SymbolTable * _symtab) : root(_root),
 /// @return 翻译是否成功，true：成功，false：失败
 bool IRGenerator::ir_compile_unit(ast_node * node)
 {
+
     // 新建main函数并默认设置当前函数为main函数
     symtab->mainFunc = symtab->newFunction("main", BasicType::TYPE_INT);
     symtab->currentFunc = symtab->mainFunc;
@@ -85,7 +113,7 @@ bool IRGenerator::ir_compile_unit(ast_node * node)
 
     for (auto son: node->sons) {
 
-        // 遍历编译单元，要么是函数定义，要么是语句
+        // 遍历编译单元，要么是全局变量，要么是函数定义
         ast_node * son_node = ir_visit_ast_node(son);
         if (!son_node) {
             return false;
@@ -123,84 +151,105 @@ bool IRGenerator::ir_function_define(ast_node * node)
         // TODO 自行追加语义错误处理
         return false;
     }
-
-    // 创建一个新的函数定义，函数的返回类型设置为VOID，待定，必须等return时才能确定，目前可以是VOID或者INT类型
-    symtab->currentFunc = new Function(node->name, BasicType::TYPE_VOID);
-    bool result = symtab->insertFunction(symtab->currentFunc);
-    if (!result) {
-        // 清理资源
-        delete symtab->currentFunc;
-
-        // 恢复当前函数指向main函数
+    if (node->name == "main") {
         symtab->currentFunc = symtab->mainFunc;
 
-        // 函数已经定义过了，不能重复定义，语义错误：出错返回。
-        // TODO 自行追加语义错误处理
+    } else {
+        // 创建一个新的函数定义，函数的返回类型设置为VOID，待定，必须等return时才能确定，目前可以是VOID或者INT类型
+        symtab->currentFunc = new Function(node->name, BasicType::TYPE_VOID);
+        bool result = symtab->insertFunction(symtab->currentFunc);
+        if (!result) {
+            // 清理资源
+            delete symtab->currentFunc;
 
-        return false;
+            // 恢复当前函数指向main函数
+            symtab->currentFunc = symtab->mainFunc;
+
+            // 函数已经定义过了，不能重复定义，语义错误：出错返回。
+            // TODO 自行追加语义错误处理
+
+            return false;
+        }
     }
-
     // 获取函数的IR代码列表，用于后面追加指令用，注意这里用的是引用传值
     InterCode & irCode = symtab->currentFunc->getInterCode();
 
     // 这里也可增加一个函数入口Label指令，便于后续基本块划分
 
     // 创建并加入Entry入口指令
-    irCode.addInst(new EntryIRInst());
+    if (node->name == "main") { // 遍历函数体内的每个语句
+        for (auto son: node->sons) {
 
-    // 创建出口指令并不加入出口指令，等函数内的指令处理完毕后加入出口指令
-    IRInst * exitLabelInst = new LabelIRInst();
+            // 遍历函数定义，孩子要么是函数类型，要么是形式参数，要么是block
+            ast_node * son_node = ir_visit_ast_node(son);
+            if (!son_node) {
 
-    // 函数出口指令保存到函数信息中，因为在语义分析函数体时return语句需要跳转到函数尾部，需要这个label指令
-    symtab->currentFunc->setExitLabel(exitLabelInst);
+                // 对函数体内的语句进行语义分析时出现错误
+                return false;
+            }
 
-    // 新建一个Value，用于保存函数的返回值，如果没有返回值可不用申请，
-    // 目前未知，先创建一个，不用后续可释放
-    Value * retValue = symtab->currentFunc->newVarValue(BasicType::TYPE_INT);
-
-    // 保存函数返回值变量到函数信息中，在return语句翻译时需要设置值到这个变量中
-    symtab->currentFunc->setReturnValue(retValue);
-
-    // 遍历函数体内的每个语句
-    for (auto son: node->sons) {
-
-        // 遍历函数定义，孩子要么是形式参数，要么是block
-        ast_node * son_node = ir_visit_ast_node(son);
-        if (!son_node) {
-
-            // 对函数体内的语句进行语义分析时出现错误
-            return false;
+            // IR指令追加到当前的节点中
+            node->blockInsts.addInst(son_node->blockInsts);
         }
 
-        // IR指令追加到当前的节点中
-        node->blockInsts.addInst(son_node->blockInsts);
-    }
+        // 此时，所有指令都加入到当前函数中，也就是node->blockInsts
 
-    // 此时，所有指令都加入到当前函数中，也就是node->blockInsts
-
-    // node节点的指令移动到函数的IR指令列表中
-    irCode.addInst(node->blockInsts);
-
-    // 添加函数出口Label指令，主要用于return语句跳转到这里进行函数的退出
-    irCode.addInst(exitLabelInst);
-
-    // 检查函数是否有返回值类型，则需要设置返回值，否则不设置
-    if (symtab->currentFunc->getReturnType().type != BasicType::TYPE_VOID) {
-        // 函数出口指令
-        irCode.addInst(new ExitIRInst(retValue));
+        // node节点的指令移动到函数的IR指令列表中
+        irCode.addInst(node->blockInsts);
     } else {
-        // 清理资源恢复原状
-        symtab->currentFunc->deleteVarValue(retValue);
-        symtab->currentFunc->setReturnValue(nullptr);
-        delete retValue;
+        irCode.addInst(new EntryIRInst());
 
-        // 函数出口指令
-        irCode.addInst(new ExitIRInst());
+        // 创建出口指令并不加入出口指令，等函数内的指令处理完毕后加入出口指令
+        IRInst * exitLabelInst = new LabelIRInst();
+
+        // 函数出口指令保存到函数信息中，因为在语义分析函数体时return语句需要跳转到函数尾部，需要这个label指令
+        symtab->currentFunc->setExitLabel(exitLabelInst);
+        // 新建一个Value，用于保存函数的返回值，如果没有返回值可不用申请，
+        // 目前未知，先创建一个，不用后续可释放
+        Value * retValue = symtab->currentFunc->newVarValue(BasicType::TYPE_INT);
+
+        // 保存函数返回值变量到函数信息中，在return语句翻译时需要设置值到这个变量中
+        symtab->currentFunc->setReturnValue(retValue);
+
+        // 遍历函数体内的每个语句
+        for (auto son: node->sons) {
+
+            // 遍历函数定义，孩子要么是函数类型，要么是形式参数，要么是block
+            ast_node * son_node = ir_visit_ast_node(son);
+            if (!son_node) {
+
+                // 对函数体内的语句进行语义分析时出现错误
+                return false;
+            }
+
+            // IR指令追加到当前的节点中
+            node->blockInsts.addInst(son_node->blockInsts);
+        }
+
+        // 此时，所有指令都加入到当前函数中，也就是node->blockInsts
+
+        // node节点的指令移动到函数的IR指令列表中
+        irCode.addInst(node->blockInsts);
+
+        // 添加函数出口Label指令，主要用于return语句跳转到这里进行函数的退出
+        irCode.addInst(exitLabelInst);
+
+        // 检查函数是否有返回值类型，则需要设置返回值，否则不设置
+        if (symtab->currentFunc->getReturnType().type != BasicType::TYPE_VOID) {
+            // 函数出口指令
+            irCode.addInst(new ExitIRInst(retValue));
+        } else {
+            // 清理资源恢复原状
+            symtab->currentFunc->deleteVarValue(retValue);
+            symtab->currentFunc->setReturnValue(nullptr);
+            delete retValue;
+
+            // 函数出口指令
+            irCode.addInst(new ExitIRInst());
+        }
     }
-
     // 恢复成指向main函数
     symtab->currentFunc = symtab->mainFunc;
-
     return true;
 }
 
@@ -565,6 +614,101 @@ bool IRGenerator::ir_mod(ast_node * node)
     node->blockInsts.addInst(new BinaryIRInst(IRInstOperator::IRINST_OP_MOD_I, resultValue, left->val, right->val));
     node->val = resultValue;
 
+    return true;
+}
+
+/// @brief 比较运算 <,<=,>,>=,==,!= AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_cmp(ast_node * node)
+{
+    return true;
+}
+
+/// @brief 逻辑运算 && AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_and(ast_node * node)
+{
+    return true;
+}
+
+/// @brief 逻辑运算 || AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_or(ast_node * node)
+{
+    return true;
+}
+
+/// @brief 逻辑运算 ! AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_not(ast_node * node)
+{
+    return true;
+}
+
+/// @brief 变量定义AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_vardecl(ast_node * node)
+{
+    return true;
+}
+/// @brief 变量定义列表AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_varlist(ast_node * node)
+{
+    // 遍历VarList的孩子，孩子是VarDecl
+    for (auto son: node->sons) {
+
+        // 创建变量，默认整型，声明IR
+        // Value * var = symtab->currentFunc->newVarValue(son->name, BasicType::TYPE_INT);
+        node->blockInsts.addInst(new DeclareIRInst(son->name));
+        //判断是否初始化
+        ast_node * assign_node = son->sons[1];
+
+        if (assign_node != nullptr) {
+            //赋值IR
+            ast_node * right = ir_visit_ast_node(assign_node);
+            node->blockInsts.addInst(right->blockInsts);
+        }
+    }
+    return true;
+}
+
+/// @brief 数组定义AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_array_decl(ast_node * node)
+{
+    return true;
+}
+
+/// @brief if-else的AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_if(ast_node * node)
+{
+    return true;
+}
+
+/// @brief while的AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_while(ast_node * node)
+{
+    return true;
+}
+
+/// @brief 表示类型的AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_type(ast_node * node)
+{
+    // ast_node * type_node = node->sons[0];
     return true;
 }
 

@@ -226,12 +226,10 @@ public:
         _var = true;
     }
 
-	/// @brief 匿名变量Value
-	/// @param _type 类型
-	VarValue(BasicType _type = BasicType::TYPE_FLOAT) : VarValue(createLocalVarName(), _type)
-	{
-
-	}
+    /// @brief 匿名变量Value
+    /// @param _type 类型
+    VarValue(BasicType _type = BasicType::TYPE_FLOAT) : VarValue(createLocalVarName(), _type)
+    {}
 
     /// @brief 析构函数
     ~VarValue() override
@@ -283,8 +281,7 @@ public:
     /// @brief 整型寄存器型Value
     /// \param val
     IntRegValue(std::string _name, int32_t _reg_no) : RegValue(_name, _reg_no, BasicType::TYPE_INT)
-    {
-    }
+    {}
 
     /// @brief 析构函数
     ~IntRegValue() override

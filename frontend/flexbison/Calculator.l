@@ -92,10 +92,6 @@ white_line  [\r\n]
                 return T_DIGIT;
             }
 
-"function"  {
-                // function作为关键字，作为特殊ID被预留
-                return T_FUNC;
-            }
 "return"    {
                 // return关键字
                 return T_RETURN;

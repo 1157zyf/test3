@@ -374,8 +374,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 42
-#define YY_END_OF_BUFFER 43
+#define YY_NUM_RULES 41
+#define YY_END_OF_BUFFER 42
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -383,17 +383,16 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[88] =
+static const flex_int16_t yy_accept[80] =
     {   0,
-        0,    0,    0,    0,   43,   41,   39,   40,   40,   33,
-       24,   41,   16,   17,   22,   21,   38,   20,   23,    5,
-        5,   35,   25,   34,   27,   15,   18,   19,   15,   15,
-       15,   15,   15,   15,   36,   41,   37,    3,    3,    3,
-       39,   40,   30,   31,    1,    0,    7,    0,    5,   26,
-       29,   28,   15,   15,   15,   15,   13,   15,   15,   15,
-       15,   32,    3,    3,    2,    0,    4,    6,   15,   15,
-       11,   15,   15,   15,   14,   15,   15,   10,   15,   15,
-       15,   12,   15,    9,   15,    8,    0
+        0,    0,    0,    0,   42,   40,   38,   39,   39,   32,
+       23,   40,   15,   16,   21,   20,   37,   19,   22,    5,
+        5,   34,   24,   33,   26,   14,   17,   18,   14,   14,
+       14,   14,   14,   35,   40,   36,    3,    3,    3,   38,
+       39,   29,   30,    1,    0,    7,    0,    5,   25,   28,
+       27,   14,   14,   14,   12,   14,   14,   14,   14,   31,
+        3,    3,    2,    0,    4,    6,   14,   10,   14,   14,
+       14,   13,   14,    9,   14,   14,   11,    8,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -407,11 +406,11 @@ static const YY_CHAR yy_ec[256] =
        20,   21,    1,    1,   22,   22,   22,   22,   22,   22,
        23,   23,   23,   23,   23,   23,   23,   23,   23,   23,
        23,   23,   23,   23,   23,   23,   23,   24,   23,   23,
-       25,    1,   26,    1,    1,    1,   22,   22,   27,   28,
+       25,    1,   26,    1,    1,    1,   22,   22,   22,   27,
 
-       29,   30,   23,   31,   32,   23,   23,   33,   23,   34,
-       35,   23,   23,   36,   37,   38,   39,   40,   41,   24,
-       23,   23,   42,   43,   44,    1,    1,    1,    1,    1,
+       28,   29,   23,   30,   31,   23,   23,   32,   23,   33,
+       34,   23,   23,   35,   36,   37,   38,   39,   40,   24,
+       23,   23,   41,   42,   43,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -428,111 +427,95 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[45] =
+static const YY_CHAR yy_meta[44] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    2,
         1,    1,    1,    1,    3,    3,    3,    1,    1,    1,
-        1,    3,    4,    4,    1,    1,    3,    3,    3,    3,
+        1,    3,    4,    4,    1,    1,    3,    3,    3,    4,
         4,    4,    4,    4,    4,    4,    4,    4,    4,    4,
-        4,    1,    1,    1
+        1,    1,    1
     } ;
 
-static const flex_int16_t yy_base[94] =
+static const flex_int16_t yy_base[86] =
     {   0,
-        0,    0,   42,   43,  191,  192,  188,   44,   46,  169,
-      192,  181,  192,  192,  192,  192,  192,  192,   41,   41,
-       43,  192,  167,  166,  157,   46,  192,  192,   51,   54,
-       57,   46,   47,   55,  192,  124,  192,  163,  155,  113,
-      111,   75,  192,  192,  192,   99,   79,    0,   81,  192,
-      192,  192,    0,   58,   69,   70,   71,   77,   78,   87,
-       88,  192,   87,   80,  192,   61,  192,    0,   80,   96,
-       94,   95,  103,  102,  108,  109,  110,  111,  119,  120,
-      121,  126,  127,  129,  134,  135,  192,  169,  171,  175,
-      179,   51,  181
-
+        0,    0,   41,   42,  144,  145,  141,   43,   45,  122,
+      145,  134,  145,  145,  145,  145,  145,  145,   40,   40,
+       42,  145,  120,  119,  118,   45,  145,  145,   50,   39,
+       41,   42,   45,  145,   95,  145,  133,  132,  120,  131,
+       75,  145,  145,  145,  129,   65,    0,   68,  145,  145,
+      145,    0,   99,   54,   98,   55,   56,   63,   65,  145,
+      126,  125,  145,  124,  145,    0,   70,   86,   67,   74,
+       75,   59,   68,   57,   76,   77,   38,   31,  145,  110,
+      112,  116,  120,   50,  122
     } ;
 
-static const flex_int16_t yy_def[94] =
+static const flex_int16_t yy_def[86] =
     {   0,
-       87,    1,   88,   88,   87,   87,   87,   87,   87,   87,
-       87,   87,   87,   87,   87,   87,   87,   87,   87,   87,
-       87,   87,   87,   87,   87,   89,   87,   87,   89,   89,
-       89,   31,   31,   31,   87,   87,   87,   90,   90,   87,
-       87,   87,   87,   87,   87,   91,   87,   92,   87,   87,
-       87,   87,   93,   31,   31,   31,   31,   31,   31,   31,
-       31,   87,   90,   90,   87,   91,   87,   92,   31,   31,
-       31,   31,   31,   31,   31,   31,   31,   31,   31,   31,
-       31,   31,   31,   31,   31,   31,    0,   87,   87,   87,
-       87,   87,   87
-
+       79,    1,   80,   80,   79,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   81,   79,   79,   81,   29,
+       29,   29,   29,   79,   79,   79,   82,   82,   79,   79,
+       79,   79,   79,   79,   83,   79,   84,   79,   79,   79,
+       79,   85,   29,   29,   29,   29,   29,   29,   29,   79,
+       82,   82,   79,   83,   79,   84,   29,   29,   29,   29,
+       29,   29,   29,   29,   29,   29,   29,   29,    0,   79,
+       79,   79,   79,   79,   79
     } ;
 
-static const flex_int16_t yy_nxt[237] =
+static const flex_int16_t yy_nxt[189] =
     {   0,
         6,    7,    8,    9,   10,   11,   12,   13,   14,   15,
        16,   17,   18,   19,   20,   21,   21,   22,   23,   24,
-       25,   26,   26,   26,   27,   28,   26,   26,   29,   30,
-       26,   31,   26,   26,   26,   32,   26,   26,   26,   33,
-       34,   35,   36,   37,   39,   39,   42,   42,   42,   42,
-       45,   40,   40,   68,   46,   47,   47,   49,   49,   49,
-       53,   53,   53,   67,   48,   53,   53,   53,   53,   53,
-       53,   53,   53,   53,   59,   54,   54,   42,   42,   54,
-       54,   60,   64,   55,   54,   61,   57,   54,   54,   64,
-       58,   54,   56,   47,   47,   49,   49,   49,   54,   54,
+       25,   26,   26,   26,   27,   28,   26,   29,   26,   26,
+       30,   26,   26,   26,   31,   26,   26,   26,   32,   33,
+       34,   35,   36,   38,   38,   41,   41,   41,   41,   44,
+       39,   39,   66,   45,   46,   46,   48,   48,   48,   52,
+       52,   52,   53,   47,   52,   52,   52,   55,   57,   53,
+       53,   56,   53,   53,   59,   58,   53,   41,   41,   46,
+       46,   54,   48,   48,   48,   53,   53,   53,   53,   67,
+       53,   68,   69,   70,   53,   71,   53,   72,   53,   53,
 
-       54,   67,   54,   70,   54,   69,   54,   54,   75,   54,
-       54,   54,   41,   54,   71,   72,   54,   54,   73,   74,
-       54,   54,   76,   54,   54,   54,   65,   54,   54,   54,
-       78,   54,   54,   77,   79,   54,   54,   54,   54,   54,
-       54,   54,   54,   54,   54,   81,   80,   82,   54,   54,
-       54,   83,   54,   54,   84,   54,   54,   64,   54,   54,
-       54,   85,   54,   54,   54,   64,   62,   86,   54,   38,
-       38,   38,   38,   54,   54,   63,   52,   63,   63,   66,
-       66,   66,   66,   53,   53,   51,   50,   44,   43,   41,
-       87,    5,   87,   87,   87,   87,   87,   87,   87,   87,
-
-       87,   87,   87,   87,   87,   87,   87,   87,   87,   87,
-       87,   87,   87,   87,   87,   87,   87,   87,   87,   87,
-       87,   87,   87,   87,   87,   87,   87,   87,   87,   87,
-       87,   87,   87,   87,   87,   87
+       74,   53,   76,   77,   73,   53,   75,   53,   53,   78,
+       37,   37,   37,   37,   53,   53,   61,   53,   61,   61,
+       64,   64,   64,   64,   52,   52,   65,   62,   62,   53,
+       53,   65,   40,   63,   62,   62,   60,   51,   50,   49,
+       43,   42,   40,   79,    5,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   79,   79,   79
     } ;
 
-static const flex_int16_t yy_chk[237] =
+static const flex_int16_t yy_chk[189] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    3,    4,    8,    8,    9,    9,
-       19,    3,    4,   92,   19,   20,   20,   21,   21,   21,
-       26,   26,   26,   66,   20,   29,   29,   29,   30,   30,
-       30,   31,   31,   31,   32,   32,   33,   42,   42,   32,
-       33,   33,   64,   29,   34,   34,   31,   54,   34,   63,
-       31,   54,   30,   47,   47,   49,   49,   49,   55,   56,
+        1,    1,    1,    3,    4,    8,    8,    9,    9,   19,
+        3,    4,   84,   19,   20,   20,   21,   21,   21,   26,
+       26,   26,   78,   20,   29,   29,   29,   30,   31,   77,
+       30,   30,   31,   32,   33,   32,   33,   41,   41,   46,
+       46,   29,   48,   48,   48,   54,   56,   57,   74,   54,
+       72,   56,   57,   58,   58,   59,   59,   67,   69,   73,
 
-       57,   46,   55,   56,   57,   55,   58,   59,   69,   69,
-       58,   59,   41,   69,   58,   59,   60,   61,   60,   61,
-       60,   61,   70,   71,   72,   70,   40,   71,   72,   70,
-       73,   74,   73,   72,   74,   74,   73,   75,   76,   77,
-       78,   75,   76,   77,   78,   77,   76,   79,   79,   80,
-       81,   80,   79,   80,   81,   82,   83,   39,   84,   82,
-       83,   83,   84,   85,   86,   38,   36,   85,   86,   88,
-       88,   88,   88,   89,   89,   90,   25,   90,   90,   91,
-       91,   91,   91,   93,   93,   24,   23,   12,   10,    7,
-        5,   87,   87,   87,   87,   87,   87,   87,   87,   87,
-
-       87,   87,   87,   87,   87,   87,   87,   87,   87,   87,
-       87,   87,   87,   87,   87,   87,   87,   87,   87,   87,
-       87,   87,   87,   87,   87,   87,   87,   87,   87,   87,
-       87,   87,   87,   87,   87,   87
+       70,   67,   73,   75,   69,   70,   71,   75,   76,   76,
+       80,   80,   80,   80,   81,   81,   82,   68,   82,   82,
+       83,   83,   83,   83,   85,   85,   64,   62,   61,   55,
+       53,   45,   40,   39,   38,   37,   35,   25,   24,   23,
+       12,   10,    7,    5,   79,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   79,   79,   79,   79,   79,
+       79,   79,   79,   79,   79,   79,   79,   79
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[43] =
+static const flex_int32_t yy_rule_can_match_eol[42] =
     {   0,
 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    1, 0, 0,     };
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    0, 0,     };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -561,7 +544,7 @@ char *yytext;
 #include "BisonParser.h"
 
 // 对于整数或浮点数，词法识别无符号数，对于负数，识别为求负运算符与无符号数，请注意。
-#line 565 "/root/calculator/frontend/flexbison/autogenerated/CalculatorFlex.cpp"
+#line 548 "/root/calculator/frontend/flexbison/autogenerated/CalculatorFlex.cpp"
 /* 使它不要添加默认的规则,这样输入无法被给定的规则完全匹配时，词法分析器可以报告一个错误 */
 /* 产生yywrap函数 */
 /* flex 生成的扫描器用全局变量yylineno 维护着输入文件的当前行编号 */
@@ -573,7 +556,7 @@ char *yytext;
 
 /* 辅助定义式或者宏，后面使用时带上大括号 */
 /* 正规式定义 */
-#line 577 "/root/calculator/frontend/flexbison/autogenerated/CalculatorFlex.cpp"
+#line 560 "/root/calculator/frontend/flexbison/autogenerated/CalculatorFlex.cpp"
 
 #define INITIAL 0
 #define COMMENT 1
@@ -793,7 +776,7 @@ YY_DECL
 	{
 #line 45 "/root/calculator/frontend/flexbison/Calculator.l"
 
-#line 797 "/root/calculator/frontend/flexbison/autogenerated/CalculatorFlex.cpp"
+#line 780 "/root/calculator/frontend/flexbison/autogenerated/CalculatorFlex.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -820,13 +803,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 88 )
+				if ( yy_current_state >= 80 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_current_state != 87 );
+		while ( yy_current_state != 79 );
 		yy_cp = (yy_last_accepting_cpos);
 		yy_current_state = (yy_last_accepting_state);
 
@@ -932,208 +915,200 @@ case 8:
 YY_RULE_SETUP
 #line 95 "/root/calculator/frontend/flexbison/Calculator.l"
 {
-                // function作为关键字，作为特殊ID被预留
-                return T_FUNC;
+                // return关键字
+                return T_RETURN;
             }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 99 "/root/calculator/frontend/flexbison/Calculator.l"
 {
-                // return关键字
-                return T_RETURN;
+                // void类型
+                return T_VOID;
             }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 103 "/root/calculator/frontend/flexbison/Calculator.l"
 {
-                // void类型
-                return T_VOID;
+                // int类型
+                return T_INT;
             }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 107 "/root/calculator/frontend/flexbison/Calculator.l"
 {
-                // int类型
-                return T_INT;
-            }
-	YY_BREAK
-case 12:
-YY_RULE_SETUP
-#line 111 "/root/calculator/frontend/flexbison/Calculator.l"
-{
 	            //while关键字
 				return T_WHILE;
             }
 	YY_BREAK
-case 13:
+case 12:
 YY_RULE_SETUP
-#line 116 "/root/calculator/frontend/flexbison/Calculator.l"
+#line 112 "/root/calculator/frontend/flexbison/Calculator.l"
 {
 	            //if关键字
 				return T_IF;
             }
 	YY_BREAK
-case 14:
+case 13:
 YY_RULE_SETUP
-#line 121 "/root/calculator/frontend/flexbison/Calculator.l"
+#line 117 "/root/calculator/frontend/flexbison/Calculator.l"
 {
 	            //else关键字
 				return T_ELSE;
             }
 	YY_BREAK
-case 15:
+case 14:
 YY_RULE_SETUP
-#line 126 "/root/calculator/frontend/flexbison/Calculator.l"
+#line 122 "/root/calculator/frontend/flexbison/Calculator.l"
 {
                 yylval.var_id.id = strdup(yytext);
                 yylval.var_id.lineno = yylineno;
                 return T_ID;
             }
 	YY_BREAK
+case 15:
+YY_RULE_SETUP
+#line 129 "/root/calculator/frontend/flexbison/Calculator.l"
+{return '(';}
+	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 133 "/root/calculator/frontend/flexbison/Calculator.l"
-{return '(';}
+#line 130 "/root/calculator/frontend/flexbison/Calculator.l"
+{return ')';}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 134 "/root/calculator/frontend/flexbison/Calculator.l"
-{return ')';}
+#line 131 "/root/calculator/frontend/flexbison/Calculator.l"
+{return '[';}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 135 "/root/calculator/frontend/flexbison/Calculator.l"
-{return '[';}
+#line 132 "/root/calculator/frontend/flexbison/Calculator.l"
+{return ']';}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 136 "/root/calculator/frontend/flexbison/Calculator.l"
-{return ']';}
+#line 134 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_SUB;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 138 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_SUB;}
+#line 135 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_ADD;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 139 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_ADD;}
+#line 137 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_MULT;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 141 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_MULT;}
+#line 138 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_DIV;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 142 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_DIV;}
+#line 139 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_MOD;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 143 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_MOD;}
+#line 142 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_LT;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 146 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_LT;}
+#line 143 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_LE;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 147 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_LE;}
+#line 144 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_GT;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 148 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_GT;}
+#line 145 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_GE;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 149 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_GE;}
+#line 146 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_EQ;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 150 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_EQ;}
+#line 147 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_NEQ;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 151 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_NEQ;}
+#line 149 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_AND;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 153 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_AND;}
+#line 150 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_OR;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 154 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_OR;}
+#line 151 "/root/calculator/frontend/flexbison/Calculator.l"
+{return T_NOT;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 155 "/root/calculator/frontend/flexbison/Calculator.l"
-{return T_NOT;}
+#line 153 "/root/calculator/frontend/flexbison/Calculator.l"
+{return '=';}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 157 "/root/calculator/frontend/flexbison/Calculator.l"
-{return '=';}
+#line 154 "/root/calculator/frontend/flexbison/Calculator.l"
+{return ';';}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 158 "/root/calculator/frontend/flexbison/Calculator.l"
-{return ';';}
+#line 156 "/root/calculator/frontend/flexbison/Calculator.l"
+{return '{';}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 160 "/root/calculator/frontend/flexbison/Calculator.l"
-{return '{';}
+#line 157 "/root/calculator/frontend/flexbison/Calculator.l"
+{return '}'; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 161 "/root/calculator/frontend/flexbison/Calculator.l"
-{return '}'; }
+#line 159 "/root/calculator/frontend/flexbison/Calculator.l"
+{return ','; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 163 "/root/calculator/frontend/flexbison/Calculator.l"
-{return ','; }
+#line 161 "/root/calculator/frontend/flexbison/Calculator.l"
+;
 	YY_BREAK
 case 39:
+/* rule 39 can match eol */
 YY_RULE_SETUP
-#line 165 "/root/calculator/frontend/flexbison/Calculator.l"
+#line 163 "/root/calculator/frontend/flexbison/Calculator.l"
 ;
 	YY_BREAK
 case 40:
-/* rule 40 can match eol */
 YY_RULE_SETUP
-#line 167 "/root/calculator/frontend/flexbison/Calculator.l"
-;
-	YY_BREAK
-case 41:
-YY_RULE_SETUP
-#line 169 "/root/calculator/frontend/flexbison/Calculator.l"
+#line 165 "/root/calculator/frontend/flexbison/Calculator.l"
 {
                 printf("Line %d: Invalid char %s\n", yylineno, yytext);
                 // 词法识别错误
                 return 257;
             }
 	YY_BREAK
-case 42:
+case 41:
 YY_RULE_SETUP
-#line 174 "/root/calculator/frontend/flexbison/Calculator.l"
+#line 170 "/root/calculator/frontend/flexbison/Calculator.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 1137 "/root/calculator/frontend/flexbison/autogenerated/CalculatorFlex.cpp"
+#line 1112 "/root/calculator/frontend/flexbison/autogenerated/CalculatorFlex.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1431,7 +1406,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 88 )
+			if ( yy_current_state >= 80 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1459,11 +1434,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 88 )
+		if ( yy_current_state >= 80 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 87);
+	yy_is_jam = (yy_current_state == 79);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -2151,6 +2126,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 174 "/root/calculator/frontend/flexbison/Calculator.l"
+#line 170 "/root/calculator/frontend/flexbison/Calculator.l"
 
 

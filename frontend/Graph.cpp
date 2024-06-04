@@ -86,9 +86,6 @@ string getNodeName(ast_node * astnode)
         case ast_operator_type::AST_OP_VOID_TYPE:
             nodeName = "void";
             break;
-        case ast_operator_type::AST_OP_FUNCTION_TYPE:
-            nodeName = "function";
-            break;
         case ast_operator_type::AST_OP_FUNC_FORMAL_PARAMS:
             nodeName = "formal-params";
             break;

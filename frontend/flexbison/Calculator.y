@@ -32,7 +32,7 @@ void yyerror(char * msg);
 // 对于单个字符的算符或者分隔符，在词法分析时可直返返回对应的字符即可
 %token <integer_num> T_DIGIT
 %token <var_id> T_ID
-%token T_FUNC T_RETURN T_VOID T_INT T_ADD T_SUB T_MULT T_DIV T_MOD
+%token T_RETURN T_VOID T_INT T_ADD T_SUB T_MULT T_DIV T_MOD
 %token T_LT T_LE T_GT T_GE T_EQ T_NEQ T_AND T_OR T_NOT
 %token T_WHILE T_IF T_ELSE
 
@@ -82,15 +82,7 @@ CompileUnit : FuncDef {
     ;
 
 // 函数定义和声明(有block是定义，无block是声明)
-FuncDef : T_FUNC T_ID '(' ')' Block  {
-	    ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_FUNCTION_TYPE, nullptr);
-		type_node->type.type = BasicType::TYPE_VOID;
-
-        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
-        $$ = create_func_def(type, $2.lineno, $2.id, $5, nullptr);
-
-    }
-    | T_INT T_ID '(' ')' Block  {
+FuncDef :T_INT T_ID '(' ')' Block  {
 		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
 		type_node->type.type = BasicType::TYPE_INT;
 
@@ -104,14 +96,6 @@ FuncDef : T_FUNC T_ID '(' ')' Block  {
 
         ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
         $$ = create_func_def(type, $2.lineno, $2.id, $5, nullptr);
-
-    }
-    | T_FUNC T_ID '(' FuncFormalParams ')' Block {
-		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_FUNCTION_TYPE, nullptr);
-		type_node->type.type = BasicType::TYPE_VOID;
-
-        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
-        $$ = create_func_def(type, $2.lineno, $2.id, $6, $4);
 
     }
     | T_INT T_ID '(' FuncFormalParams ')' Block {
@@ -130,14 +114,6 @@ FuncDef : T_FUNC T_ID '(' ')' Block  {
         $$ = create_func_def(type, $2.lineno, $2.id, $6, $4);
 
     }
-    | T_FUNC T_ID '(' ')' ';'{
-		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_FUNCTION_TYPE, nullptr);
-		type_node->type.type = BasicType::TYPE_VOID;
-
-        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
-        $$ = create_func_decl(type, $2.lineno, $2.id, nullptr);
-
-    }
 	| T_INT T_ID '(' ')' ';'{
 		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
 		type_node->type.type = BasicType::TYPE_INT;
@@ -153,14 +129,6 @@ FuncDef : T_FUNC T_ID '(' ')' Block  {
         ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
         $$ = create_func_decl(type, $2.lineno, $2.id, nullptr);
 
-    }
-	| T_FUNC T_ID '(' FuncFormalParams ')' ';'{
-		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_FUNCTION_TYPE, nullptr);
-		type_node->type.type = BasicType::TYPE_VOID;
-
-        ast_node * type = new_ast_node(ast_operator_type::AST_OP_FUNC_TYPE, type_node, nullptr);
-        $$ = create_func_decl(type, $2.lineno, $2.id, $4);
-		
     }
 	| T_INT T_ID '(' FuncFormalParams ')' ';'{
 		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
@@ -247,6 +215,10 @@ Block : '{' '}' {
         // 语句块含有语句
         $$ = $2;
     }
+	| '{' Block '}' {
+        // 语句块含有语句
+        $$ = $2;
+    }
     ;
 
 // 语句块内语句列表
@@ -271,6 +243,9 @@ BlockItem : Statement  {
 		$$ = $1;
 	}
 	| WhileExpr {
+		$$ = $1;
+	}
+	| Block{
 		$$ = $1;
 	}
     ;
@@ -387,7 +362,7 @@ OrExp : AndExp {
     | OrExp T_OR AndExp {
         /* Expr || Term */
 
-        // 创建一个AST_OP_DIV类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_OR类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_OR, $1, $3, nullptr);
 	}
     ;
@@ -397,7 +372,7 @@ AndExp : CompExp {
     | AndExp T_AND CompExp {
         /* Expr && Term */
 
-        // 创建一个AST_OP_MULT类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_AND类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_AND, $1, $3, nullptr);
 	}
 /*比较表达式*/
@@ -408,37 +383,38 @@ CompExp : AddExp {
     | CompExp T_LT AddExp {
         /* Expr < Term */
 
-        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_LT类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_LT, $1, $3, nullptr);
     }
 	| CompExp T_LE AddExp {
         /* Expr <= Term */
 
-        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_LE类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_LE, $1, $3, nullptr);
     }
 	| CompExp T_GT AddExp {
         /* Expr > Term */
 
-        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_GT类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_GT, $1, $3, nullptr);
     }
 	| CompExp T_GE AddExp {
         /* Expr >= Term */
 
-        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_GE类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_GE, $1, $3, nullptr);
     }
 	| CompExp T_EQ AddExp {
         /* Expr == Term */
 
-        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_EQ类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_EQ, $1, $3, nullptr);
     }
 	| CompExp T_NEQ AddExp {
+
         /* Expr != Term */
 
-        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_NEQ类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_NEQ, $1, $3, nullptr);
     }
 	;
@@ -455,9 +431,9 @@ AddExp : MultExp {
         $$ = new_ast_node(ast_operator_type::AST_OP_ADD, $1, $3, nullptr);
     }
 	| AddExp T_SUB MultExp {
-        /* Expr = Expr + Term */
+        /* Expr = Expr - Term */
 
-        // 创建一个AST_OP_ADD类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_SUB类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_SUB, $1, $3, nullptr);
     }
 	;
@@ -481,7 +457,7 @@ MultExp : MinusExp {
     | MultExp T_MOD MinusExp {
         /* Expr = Expr % Term */
 
-        // 创建一个AST_OP_MULT类型的中间节点，孩子为Expr($1)和Term($3)
+        // 创建一个AST_OP_MOD类型的中间节点，孩子为Expr($1)和Term($3)
         $$ = new_ast_node(ast_operator_type::AST_OP_MOD, $1, $3, nullptr);
 	}
     ;

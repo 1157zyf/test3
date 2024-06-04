@@ -102,6 +102,55 @@ protected:
     /// @return 翻译是否成功，true：成功，false：失败
     bool ir_mod(ast_node * node);
 
+    /// @brief 比较运算 <,<=,>,>=,==,!= AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_cmp(ast_node * node);
+
+    /// @brief 逻辑运算 && AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_and(ast_node * node);
+
+    /// @brief 逻辑运算 || AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_or(ast_node * node);
+
+    /// @brief 逻辑运算 ! AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_not(ast_node * node);
+
+    /// @brief 变量定义AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_vardecl(ast_node * node);
+    /// @brief 变量定义列表AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_varlist(ast_node * node);
+
+    /// @brief 数组定义AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_array_decl(ast_node * node);
+
+    /// @brief if-else的AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_if(ast_node * node);
+
+    /// @brief while的AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_while(ast_node * node);
+
+    /// @brief 表示类型的AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_type(ast_node * node);
+
     /// @brief return节点翻译成线性中间IR
     /// @param node AST节点
     /// @return 翻译是否成功，true：成功，false：失败

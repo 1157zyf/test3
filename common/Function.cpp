@@ -116,7 +116,7 @@ void Function::toString(std::string & str)
     }
 
     // 输出函数头
-    str = returnType.toString() + " " + name + "(";
+    str = "define " + returnType.toString() + " " + name + "(";
 
     bool firstParam = false;
     for (auto & param: params) {

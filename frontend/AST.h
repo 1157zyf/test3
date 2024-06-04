@@ -87,8 +87,6 @@ enum class ast_operator_type : int {
     AST_OP_INT_TYPE,
     /// @brief void类型
     AST_OP_VOID_TYPE,
-    /// @brief function类型
-    AST_OP_FUNCTION_TYPE,
 
     /// @brief 形式参数列表运算符，可包含多个孩子：AST_OP_FUNC_FORMAL_PARAM
     AST_OP_FUNC_FORMAL_PARAMS,

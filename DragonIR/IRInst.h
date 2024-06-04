@@ -54,6 +54,24 @@ enum class IRInstOperator {
     /// @brief 求负指令，一元运算
     IRINST_OP_MINUS,
 
+    /// @brief <指令，二元运算
+    IRINST_OP_LT_I,
+
+    /// @brief <=指令，二元运算
+    IRINST_OP_LE_I,
+
+    /// @brief >指令，二元运算
+    IRINST_OP_GT_I,
+
+    /// @brief >=指令，二元运算
+    IRINST_OP_GE_I,
+
+    /// @brief ==指令，二元运算
+    IRINST_OP_EQ_I,
+
+    /// @brief !=指令，二元运算
+    IRINST_OP_NEQ_I,
+
     /// @brief 最大指令码，也是无效指令
     IRINST_OP_MAX
 };
@@ -282,6 +300,23 @@ public:
 
     /// @brief 析构函数
     virtual ~GotoIRInst() override;
+
+    /// @brief 转换成字符串
+    void toString(std::string & str) override;
+};
+
+class DeclareIRInst : public IRInst {
+
+public:
+    /// @brief 函数名
+    std::string name;
+
+    /// @brief 全局变量声明
+    /// @param name 全局变量名
+    DeclareIRInst(std::string name) : name(name){};
+
+    /// @brief 析构函数
+    virtual ~DeclareIRInst() override;
 
     /// @brief 转换成字符串
     void toString(std::string & str) override;

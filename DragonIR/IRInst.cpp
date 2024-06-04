@@ -165,7 +165,7 @@ void BinaryIRInst::toString(std::string & str)
         case IRInstOperator::IRINST_OP_MINUS:
 
             // 取负指令，一元运算
-            str = result->getName() + " = minus " + src1->toString();
+            str = result->getName() + " = neg " + src1->toString();
             break;
 
         default:
@@ -313,3 +313,12 @@ void GotoIRInst::toString(std::string & str)
 {
     str = "goto " + trueInst->getLabelName();
 }
+
+/// @brief 转换成字符串
+void DeclareIRInst::toString(std::string & str)
+{
+    str = "declare i32 @" + name;
+}
+/// @brief 析构函数
+DeclareIRInst::~DeclareIRInst()
+{}
