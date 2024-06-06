@@ -116,7 +116,7 @@ void Function::toString(std::string & str)
     }
 
     // 输出函数头
-    str = "define " + returnType.toString() + " " + name + "(";
+    str = "define " + returnType.toString() + " @" + name + "(";
 
     bool firstParam = false;
     for (auto & param: params) {
@@ -135,7 +135,13 @@ void Function::toString(std::string & str)
     str += ")\n";
 
     str += "{\n";
+    for (auto & val: getVarValues()) {
 
+        std::string instStr;
+        DeclareIRInst * tmp = new DeclareIRInst(val->name);
+        tmp->toString(instStr);
+        str += "\t" + instStr + "\n";
+    }
     // 遍历所有的线性IR指令，文本输出
     for (auto & inst: code.getInsts()) {
 
@@ -330,29 +336,34 @@ Value * Function::newTempValue(BasicType type)
 }
 
 /// 根据变量名取得当前符号的值。若变量不存在，则说明变量之前没有定值，则创建一个未知类型的值，初值为0
-/// \param name 变量名
+/// \param name 变量名 %l,%t.../a,b,c...
 /// \param create true: 不存在返回nullptr；false：不存在则不创建
 /// \return 变量对应的值
 Value * Function::findValue(std::string name, bool create)
 {
     Value * temp = nullptr;
 
-    // 这里只是针对函数内的变量进行检查，如果要考虑全局变量，则需要继续检查symtab的符号表
     auto pIter = varsMap.find(name);
     if (pIter != varsMap.end()) {
-
-        // 如果考虑作用域、存在重名的时候，需要从varsVector逆序检查到底用那个Value
+        //     // 如果考虑作用域、存在重名的时候，需要从varsVector逆序检查到底用那个Value
 
         temp = pIter->second;
     }
-
-    // 没有找到，并且指定了全局符号表，则继续查找
+    if (!temp) {
+        for (auto var: varsVector) {
+            if (var->_name == name) {
+                temp = var;
+                break;
+            }
+        }
+    }
+    //没有找到，并且指定了全局符号表，则继续查找
     if ((!temp) && symtab) {
 
         temp = symtab->findValue(name, false);
     }
 
-    // 变量名没有找到
+    // // 变量名没有找到
     if ((!temp) && create) {
         temp = newVarValue(name);
     }

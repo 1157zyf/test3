@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2023
  *
  */
+#include <cctype>
 #include <cstdint>
 #include <cstdio>
 #include <unordered_map>
@@ -21,6 +22,7 @@
 #include "Value.h"
 #include "ValueType.h"
 
+using namespace std;
 /// @brief 构造函数
 /// @param _root AST的根
 /// @param _symtab 符号表
@@ -52,7 +54,7 @@ IRGenerator::IRGenerator(ast_node * _root, SymbolTable * _symtab) : root(_root),
     ast2ir_handlers[ast_operator_type::AST_OP_NOT] = &IRGenerator::ir_not;
 
     /* 变量定义、数组定义 */
-    // ast2ir_handlers[ast_operator_type::AST_OP_VARDECL] = &IRGenerator::ir_vardecl;
+    ast2ir_handlers[ast_operator_type::AST_OP_VARDECL] = &IRGenerator::ir_vardecl;
     ast2ir_handlers[ast_operator_type::AST_OP_VARLIST] = &IRGenerator::ir_varlist;
     ast2ir_handlers[ast_operator_type::AST_OP_ARRAY_DECL] = &IRGenerator::ir_array_decl;
 
@@ -90,6 +92,24 @@ IRGenerator::IRGenerator(ast_node * _root, SymbolTable * _symtab) : root(_root),
 /// @return 翻译是否成功，true：成功，false：失败
 bool IRGenerator::ir_compile_unit(ast_node * node)
 {
+    //遍历编译单元，只处理varlist
+    for (auto son: node->sons) {
+        if (son->node_type == ast_operator_type::AST_OP_VARLIST) {
+            //变量定义节点
+            ast_node * v_node = son->sons[0];
+            // 创建全局变量，默认整型，声明IR
+            Value * var = new VarValue(v_node->name, BasicType::TYPE_INT);
+            symtab->insertValue(var);
+            //判断是否初始化
+            // ast_node * assign_node = son->sons[1];
+
+            // if (assign_node != nullptr) {
+            //     //赋值IR
+            //     ast_node * right = ir_visit_ast_node(assign_node);
+            //     node->blockInsts.addInst(right->blockInsts);
+            // }
+        }
+    }
 
     // 新建main函数并默认设置当前函数为main函数
     symtab->mainFunc = symtab->newFunction("main", BasicType::TYPE_INT);
@@ -112,14 +132,14 @@ bool IRGenerator::ir_compile_unit(ast_node * node)
     symtab->currentFunc->setReturnValue(retValue);
 
     for (auto son: node->sons) {
-
-        // 遍历编译单元，要么是全局变量，要么是函数定义
-        ast_node * son_node = ir_visit_ast_node(son);
-        if (!son_node) {
-            return false;
+        // 遍历编译单元，只处理函数定义
+        if (son->node_type != ast_operator_type::AST_OP_VARLIST) {
+            ast_node * son_node = ir_visit_ast_node(son);
+            if (!son_node) {
+                return false;
+            }
+            node->blockInsts.addInst(son_node->blockInsts);
         }
-
-        node->blockInsts.addInst(son_node->blockInsts);
     }
 
     // 除了函数定义的指令外都加入到main函数的指令当中
@@ -654,6 +674,18 @@ bool IRGenerator::ir_not(ast_node * node)
 /// @return 翻译是否成功，true：成功，false：失败
 bool IRGenerator::ir_vardecl(ast_node * node)
 {
+
+    Value * var = new VarValue(BasicType::TYPE_INT);
+    symtab->currentFunc->insertValue(var);
+    var->_name = node->name;
+
+    if (node->sons[1] != nullptr) {
+        ast_node * r_child = ir_visit_ast_node(node->sons[1]);
+
+        node->blockInsts.addInst(r_child->blockInsts);
+    } else {
+        return true;
+    }
     return true;
 }
 /// @brief 变量定义列表AST节点翻译成线性中间IR
@@ -661,20 +693,9 @@ bool IRGenerator::ir_vardecl(ast_node * node)
 /// @return 翻译是否成功，true：成功，false：失败
 bool IRGenerator::ir_varlist(ast_node * node)
 {
-    // 遍历VarList的孩子，孩子是VarDecl
     for (auto son: node->sons) {
-
-        // 创建变量，默认整型，声明IR
-        // Value * var = symtab->currentFunc->newVarValue(son->name, BasicType::TYPE_INT);
-        node->blockInsts.addInst(new DeclareIRInst(son->name));
-        //判断是否初始化
-        ast_node * assign_node = son->sons[1];
-
-        if (assign_node != nullptr) {
-            //赋值IR
-            ast_node * right = ir_visit_ast_node(assign_node);
-            node->blockInsts.addInst(right->blockInsts);
-        }
+        ast_node * child = ir_visit_ast_node(son);
+        node->blockInsts.addInst(child->blockInsts);
     }
     return true;
 }
@@ -743,6 +764,11 @@ bool IRGenerator::ir_assign(ast_node * node)
     // 创建临时变量保存IR的值，以及线性IR指令
     node->blockInsts.addInst(right->blockInsts);
     node->blockInsts.addInst(left->blockInsts);
+    // AssignIRInst * assignIRInst = new AssignIRInst(left->val, right->val);
+
+    // Value * result = assignIRInst->getDst();
+
+    // node->blockInsts.addInst(new DeclareIRInst(result->getName()));
     node->blockInsts.addInst(new AssignIRInst(left->val, right->val));
 
     // 这里假定赋值的类型是一致的
@@ -806,7 +832,6 @@ bool IRGenerator::ir_return(ast_node * node)
 bool IRGenerator::ir_leaf_node_var_id(ast_node * node)
 {
     Value * val;
-
     // 新建一个ID型Value
 
     // 变量，则需要在符号表中查找对应的值
@@ -814,8 +839,6 @@ bool IRGenerator::ir_leaf_node_var_id(ast_node * node)
 
     val = symtab->currentFunc->findValue(node->name, false);
     if (!val) {
-
-        // 变量不存在，则创建一个变量
         val = symtab->currentFunc->newVarValue(node->name);
     }
 

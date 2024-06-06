@@ -57,8 +57,11 @@ protected:
     bool _mem = false;
 
 public:
-    /// @brief 变量名或内部标识的名字
+    /// @brief 变量%
     std::string name;
+
+    /// @brief 变量名字a,b,c...
+    std::string _name;
 
     /// @brief 类型
     ValueType type;
@@ -77,6 +80,8 @@ public:
 
     /// @brief 栈内寻找时基址寄存器名字
     int32_t baseRegNo = -1;
+    /// @brief flag
+    bool flag = false;
 
 protected:
     /// @brief 默认实数类型的构造函数，初始值为0
@@ -112,6 +117,14 @@ public:
     virtual std::string toString()
     {
         return type.toString() + " " + getName();
+    }
+    virtual std::string toStringname()
+    {
+        return getName();
+    }
+    std::string toString(std::string name)
+    {
+        return name + "=" + getName();
     }
 
     /// @brief 获取函数栈内偏移
@@ -156,6 +169,10 @@ public:
         return _mem;
     }
 
+    // void toString(std::string & str)
+    // {
+    //     str += "declare i32 @" + getName();
+    // }
     /// @brief 根据变量类型获取所占空间的大小
     /// @return 空间大小，单位字节
     int32_t getSize()

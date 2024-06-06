@@ -12,7 +12,7 @@
 
 #include <unordered_map>
 #include <vector>
-
+#include <stack>
 #include "Function.h"
 #include "IRCode.h"
 #include "Value.h"
@@ -90,7 +90,6 @@ public:
     /// @return 新建的函数对象实例
     Function * newFunction(std::string name, BasicType returnType, bool builtin = false);
 
-protected:
     /// @brief Value插入到符号表中
     /// @param val Value信息
     void insertValue(Value * val);
@@ -114,4 +113,7 @@ private:
 
     /// @brief  函数列表
     std::vector<Function *> funcVector;
+
+    /// @brief stack
+    std::stack<Value *> stack_global;
 };

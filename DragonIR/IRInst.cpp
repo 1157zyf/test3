@@ -140,27 +140,27 @@ void BinaryIRInst::toString(std::string & str)
         case IRInstOperator::IRINST_OP_ADD_I:
 
             // 加法指令，二元运算
-            str = result->getName() + " = add " + src1->toString() + ", " + src2->toString();
+            str = result->getName() + " = add " + src1->toStringname() + ", " + src2->toStringname();
             break;
         case IRInstOperator::IRINST_OP_SUB_I:
 
             // 减法指令，二元运算
-            str = result->getName() + " = sub " + src1->toString() + ", " + src2->toString();
+            str = result->getName() + " = sub " + src1->toStringname() + ", " + src2->toStringname();
             break;
         case IRInstOperator::IRINST_OP_MULT_I:
 
             // 乘法指令，二元运算
-            str = result->getName() + " = mult " + src1->toString() + ", " + src2->toString();
+            str = result->getName() + " = mult " + src1->toStringname() + ", " + src2->toStringname();
             break;
         case IRInstOperator::IRINST_OP_DIV_I:
 
             // 除法指令，二元运算
-            str = result->getName() + " = div " + src1->toString() + ", " + src2->toString();
+            str = result->getName() + " = div " + src1->toStringname() + ", " + src2->toStringname();
             break;
         case IRInstOperator::IRINST_OP_MOD_I:
 
             // 取模指令，二元运算
-            str = result->getName() + " = mod " + src1->toString() + ", " + src2->toString();
+            str = result->getName() + " = mod " + src1->toStringname() + ", " + src2->toStringname();
             break;
         case IRInstOperator::IRINST_OP_MINUS:
 
@@ -254,7 +254,7 @@ void AssignIRInst::toString(std::string & str)
 {
     Value *src1 = srcValues[0], *result = dstValue;
 
-    str = result->getName() + " = " + src1->toString();
+    str = result->getName() + " = " + src1->toStringname();
 }
 
 /// @brief return语句指令
@@ -278,7 +278,7 @@ void ExitIRInst::toString(std::string & str)
         str = "exit void";
     } else {
         Value * src1 = srcValues[0];
-        str = "exit " + src1->toString();
+        str = "exit " + src1->toStringname();
     }
 }
 
@@ -317,7 +317,12 @@ void GotoIRInst::toString(std::string & str)
 /// @brief 转换成字符串
 void DeclareIRInst::toString(std::string & str)
 {
-    str = "declare i32 @" + name;
+    str = "declare i32 " + name;
+}
+/// @brief 转换成字符串
+void DeclareIRInst::toString_global(std::string & str)
+{
+    str = "declare i32 @" + name + '\n';
 }
 /// @brief 析构函数
 DeclareIRInst::~DeclareIRInst()

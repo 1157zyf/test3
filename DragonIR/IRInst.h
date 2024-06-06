@@ -308,7 +308,7 @@ public:
 class DeclareIRInst : public IRInst {
 
 public:
-    /// @brief 函数名
+    /// @brief 变量名
     std::string name;
 
     /// @brief 全局变量声明
@@ -320,4 +320,5 @@ public:
 
     /// @brief 转换成字符串
     void toString(std::string & str) override;
+    void toString_global(std::string & str);
 };

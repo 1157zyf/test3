@@ -190,10 +190,10 @@ public:
     /// @brief 设置符号表，以便全局符号查找
     void setSymtab(SymbolTable * _symtab);
 
-protected:
-    /// @brief Value插入到符号表中
-    /// @param val Value信息
     void insertValue(Value * val);
+
+protected:
+    ///
 
 private:
     /// @brief 函数名

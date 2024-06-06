@@ -1,12 +1,8 @@
-void add()
-{
-    int b = 1;
-}
+int f;
+int g;
 int main()
 {
-    int c = 2;
-    {
-        int i = 1;
-    }
+    int a = 1;
+    int c = a * 2;
     return 0;
 }
