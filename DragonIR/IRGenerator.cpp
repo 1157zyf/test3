@@ -112,20 +112,21 @@ bool IRGenerator::ir_compile_unit(ast_node * node)
 bool IRGenerator::ir_function_define(ast_node * node)
 {
     // 创建一个函数，用于当前函数处理
-    if (symtab->currentFunc != symtab->mainFunc) {
+    if (symtab->currentFunc != nullptr) {
         // 函数中嵌套定义函数，这是不允许的，错误退出
         // TODO 自行追加语义错误处理
         return false;
     }
-    // 创建一个新的函数定义，函数的返回类型设置为VOID，待定，必须等return时才能确定，目前可以是VOID或者INT类型
-    symtab->currentFunc = new Function(node->name, BasicType::TYPE_VOID);
+
+    // 创建一个新的函数定义，函数的返回类型设置为INT，待定，必须等return时才能确定，目前可以是VOID或者INT类型
+    symtab->currentFunc = new Function(node->name, BasicType::TYPE_INT);
     bool result = symtab->insertFunction(symtab->currentFunc);
     if (!result) {
         // 清理资源
         delete symtab->currentFunc;
 
         // 恢复当前函数指向main函数
-        symtab->currentFunc = symtab->mainFunc;
+        symtab->currentFunc = nullptr;
 
         // 函数已经定义过了，不能重复定义，语义错误：出错返回。
         // TODO 自行追加语义错误处理
@@ -189,7 +190,7 @@ bool IRGenerator::ir_function_define(ast_node * node)
         irCode.addInst(new ExitIRInst());
     }
     // 恢复成指向main函数
-    symtab->currentFunc = symtab->mainFunc;
+    symtab->currentFunc = nullptr;
     return true;
 }
 

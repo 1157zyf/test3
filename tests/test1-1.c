@@ -1,8 +1,9 @@
-int f;
-int g;
+
 int main()
 {
-    int a = 1;
-    int c = a * 2;
-    return 0;
+    int a, b0, c;
+    a = 1;
+    b0 = 2;
+    c = 3;
+    return b0 + c;
 }

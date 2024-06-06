@@ -190,7 +190,7 @@ protected:
     {
         static uint64_t tempLabelCount = 0; // 常量计数，默认从0开始
 
-        return "L" + std::to_string(tempLabelCount++);
+        return ".L" + std::to_string(tempLabelCount++);
     }
 };
 

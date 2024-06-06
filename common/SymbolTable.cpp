@@ -92,13 +92,13 @@ void SymbolTable::outputIR(const std::string & filePath)
         return;
     }
 
-    for (auto global: varsVector) {
-        std::string instStr;
-        DeclareIRInst * d_inst = new DeclareIRInst(global->name);
-        d_inst->toString_global(instStr);
+    // for (auto global: varsVector) {
+    //     std::string instStr;
+    //     DeclareIRInst * d_inst = new DeclareIRInst(global->name);
+    //     d_inst->toString_global(instStr);
 
-        fprintf(fp, "%s", instStr.c_str());
-    }
+    //     fprintf(fp, "%s", instStr.c_str());
+    // }
     for (auto func: funcVector) {
 
         std::string instStr;
