@@ -122,6 +122,10 @@ public:
     {
         return getName();
     }
+    virtual std::string globaltoString()
+    {
+        return " i32 @" + getName();
+    }
     std::string toString(std::string name)
     {
         return name + "=" + getName();

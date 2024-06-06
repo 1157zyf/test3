@@ -311,7 +311,7 @@ GotoIRInst::~GotoIRInst()
 /// @brief 转换成字符串
 void GotoIRInst::toString(std::string & str)
 {
-    str = "goto " + trueInst->getLabelName();
+    str = "br label " + trueInst->getLabelName();
 }
 
 /// @brief 转换成字符串

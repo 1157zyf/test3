@@ -595,10 +595,17 @@ bool IRGenerator::ir_not(ast_node * node)
 /// @return 翻译是否成功，true：成功，false：失败
 bool IRGenerator::ir_vardecl(ast_node * node)
 {
-
-    Value * var = new VarValue(BasicType::TYPE_INT);
-    symtab->currentFunc->insertValue(var);
-    var->_name = node->name;
+    if (symtab->currentFunc != nullptr) {
+        // 直接新建局部变量，插入到函数变量向量表中
+        Value * val = new VarValue(BasicType::TYPE_INT);
+        symtab->currentFunc->insertValue(val);
+        val->_name = node->name;
+        node->val = val;
+    } else {
+        // 直接新建全局变量，插入到全局变量向量表中
+        Value * val = symtab->newVarGlobalValue(node->name, BasicType::TYPE_INT);
+        node->val = val;
+    }
 
     if (node->sons[1] != nullptr) {
         ast_node * r_child = ir_visit_ast_node(node->sons[1]);

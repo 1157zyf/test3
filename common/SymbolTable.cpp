@@ -92,13 +92,15 @@ void SymbolTable::outputIR(const std::string & filePath)
         return;
     }
 
-    // for (auto global: varsVector) {
-    //     std::string instStr;
-    //     DeclareIRInst * d_inst = new DeclareIRInst(global->name);
-    //     d_inst->toString_global(instStr);
+    std::string str = "";
+    // 遍历全局变量表，输出定义
+    for (auto var: varsglobalVector) {
 
-    //     fprintf(fp, "%s", instStr.c_str());
-    // }
+        std::string instStr;
+        instStr = "declare" + var->globaltoString() + "\n";
+        str += instStr;
+    }
+    fprintf(fp, "%s", str.c_str());
     for (auto func: funcVector) {
 
         std::string instStr;
@@ -137,7 +139,31 @@ Value * SymbolTable::newVarValue(std::string name, BasicType type)
 
     return retVal;
 }
+Value * SymbolTable::newVarGlobalValue(std::string name, BasicType type)
+{
+    Value * retVal = nullptr;
 
+    auto pIter = varsMap.find(name);
+    if (pIter != varsMap.end()) {
+
+        // 已存在的Value
+        retVal = pIter->second;
+
+        // 符号表中存在，则只是更新值
+        pIter->second->type = type;
+
+        if (type == BasicType::TYPE_INT) {
+            pIter->second->intVal = 0;
+        } else {
+            pIter->second->realVal = 0;
+        }
+    } else {
+        retVal = new VarValue(name, type);
+        insertglobalValue(retVal);
+    }
+
+    return retVal;
+}
 /// @brief Value插入到符号表中
 /// @param name Value的名称
 /// @param val Value信息
@@ -147,6 +173,11 @@ void SymbolTable::insertValue(Value * val)
     varsVector.push_back(val);
 }
 
+void SymbolTable::insertglobalValue(Value * val)
+{
+    varsMap.emplace(val->name, val);
+    varsglobalVector.push_back(val);
+}
 /// @brief 新建一个整型数值的Value，并加入到符号表，用于后续释放空间
 /// @param intVal 整数值
 /// @return 常量Value

@@ -305,8 +305,11 @@ Value * Function::newVarValue(std::string name, BasicType type)
 /// @param val Value信息
 void Function::insertValue(Value * val)
 {
-    varsMap.emplace(val->name, val);
     varsVector.push_back(val);
+}
+void Function::insertmp(Value * val)
+{
+    varsMap.emplace(val->name, val);
 }
 
 /// @brief 新建一个匿名变量型的Value，并加入到符号表，用于后续释放空间

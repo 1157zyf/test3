@@ -60,6 +60,7 @@ public:
     /// @param name 变量ID
     /// @param type 变量类型
     Value * newVarValue(std::string name, BasicType type = BasicType::TYPE_INT);
+    Value * newVarGlobalValue(std::string name, BasicType type = BasicType::TYPE_INT);
 
     /// @brief 新建一个整型数值的Value，并加入到符号表，用于后续释放空间
     /// \param intVal 整数值
@@ -93,6 +94,7 @@ public:
     /// @brief Value插入到符号表中
     /// @param val Value信息
     void insertValue(Value * val);
+    void insertglobalValue(Value * val);
 
 public:
     /// @brief main函数
@@ -105,8 +107,10 @@ private:
     /// @brief 变量名映射表，变量名-变量，只保存全局变量以及常量
     std::unordered_map<std::string, Value *> varsMap;
 
-    /// @brief 只保存全局变量以及常量
+    /// @brief 只保存常量
     std::vector<Value *> varsVector;
+    /// @brief 只保存全局变量
+    std::vector<Value *> varsglobalVector;
 
     /// @brief 函数映射表，函数名-函数，便于检索
     std::unordered_map<std::string, Function *> funcMap;

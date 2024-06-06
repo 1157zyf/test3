@@ -191,9 +191,7 @@ public:
     void setSymtab(SymbolTable * _symtab);
 
     void insertValue(Value * val);
-
-protected:
-    ///
+    void insertmp(Value * val);
 
 private:
     /// @brief 函数名
