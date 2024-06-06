@@ -92,71 +92,17 @@ IRGenerator::IRGenerator(ast_node * _root, SymbolTable * _symtab) : root(_root),
 /// @return 翻译是否成功，true：成功，false：失败
 bool IRGenerator::ir_compile_unit(ast_node * node)
 {
-    //遍历编译单元，只处理varlist
     for (auto son: node->sons) {
-        if (son->node_type == ast_operator_type::AST_OP_VARLIST) {
-            //变量定义节点
-            ast_node * v_node = son->sons[0];
-            // 创建全局变量，默认整型，声明IR
-            Value * var = new VarValue(v_node->name, BasicType::TYPE_INT);
-            symtab->insertValue(var);
-            //判断是否初始化
-            // ast_node * assign_node = son->sons[1];
+        ast_node * son_node = ir_visit_ast_node(son);
+        if (!son_node) {
 
-            // if (assign_node != nullptr) {
-            //     //赋值IR
-            //     ast_node * right = ir_visit_ast_node(assign_node);
-            //     node->blockInsts.addInst(right->blockInsts);
-            // }
+            // 对函数体内的语句进行语义分析时出现错误
+            return false;
         }
+
+        // IR指令追加到当前的节点中
+        node->blockInsts.addInst(son_node->blockInsts);
     }
-
-    // 新建main函数并默认设置当前函数为main函数
-    symtab->mainFunc = symtab->newFunction("main", BasicType::TYPE_INT);
-    symtab->currentFunc = symtab->mainFunc;
-
-    // 获取函数的IR代码列表，用于后面追加指令用，注意这里用的是引用传值
-    InterCode & irCode = symtab->currentFunc->getInterCode();
-
-    // 创建并加入Entry入口指令
-    irCode.addInst(new EntryIRInst());
-
-    // 创建出口指令并不加入出口指令，等函数内的指令处理完毕后加入出口指令
-    IRInst * exitLabelInst = new LabelIRInst();
-    symtab->currentFunc->setExitLabel(exitLabelInst);
-
-    // 新建一个Value，用于保存函数的返回值，如果没有返回值可不用申请，
-    // 目前不需要
-
-    Value * retValue = symtab->currentFunc->newVarValue(BasicType::TYPE_INT);
-    symtab->currentFunc->setReturnValue(retValue);
-
-    for (auto son: node->sons) {
-        // 遍历编译单元，只处理函数定义
-        if (son->node_type != ast_operator_type::AST_OP_VARLIST) {
-            ast_node * son_node = ir_visit_ast_node(son);
-            if (!son_node) {
-                return false;
-            }
-            node->blockInsts.addInst(son_node->blockInsts);
-        }
-    }
-
-    // 除了函数定义的指令外都加入到main函数的指令当中
-    irCode.addInst(node->blockInsts);
-
-    // 添加函数出口Label指令，主要用于return语句跳转到这里进行函数的退出
-    irCode.addInst(exitLabelInst);
-
-    // 尾部追加一个return 0指令，使得main函数的格式正确
-    irCode.addInst(new ExitIRInst(new ConstValue(0)));
-
-    // main函数移动到列表的尾部，以便后续简便处理
-    symtab->moveFunctionEnd(symtab->mainFunc);
-
-    // 设置成空，使得后续访问该变量出错。
-    symtab->currentFunc = nullptr;
-
     return true;
 }
 
@@ -171,25 +117,20 @@ bool IRGenerator::ir_function_define(ast_node * node)
         // TODO 自行追加语义错误处理
         return false;
     }
-    if (node->name == "main") {
+    // 创建一个新的函数定义，函数的返回类型设置为VOID，待定，必须等return时才能确定，目前可以是VOID或者INT类型
+    symtab->currentFunc = new Function(node->name, BasicType::TYPE_VOID);
+    bool result = symtab->insertFunction(symtab->currentFunc);
+    if (!result) {
+        // 清理资源
+        delete symtab->currentFunc;
+
+        // 恢复当前函数指向main函数
         symtab->currentFunc = symtab->mainFunc;
 
-    } else {
-        // 创建一个新的函数定义，函数的返回类型设置为VOID，待定，必须等return时才能确定，目前可以是VOID或者INT类型
-        symtab->currentFunc = new Function(node->name, BasicType::TYPE_VOID);
-        bool result = symtab->insertFunction(symtab->currentFunc);
-        if (!result) {
-            // 清理资源
-            delete symtab->currentFunc;
+        // 函数已经定义过了，不能重复定义，语义错误：出错返回。
+        // TODO 自行追加语义错误处理
 
-            // 恢复当前函数指向main函数
-            symtab->currentFunc = symtab->mainFunc;
-
-            // 函数已经定义过了，不能重复定义，语义错误：出错返回。
-            // TODO 自行追加语义错误处理
-
-            return false;
-        }
+        return false;
     }
     // 获取函数的IR代码列表，用于后面追加指令用，注意这里用的是引用传值
     InterCode & irCode = symtab->currentFunc->getInterCode();
@@ -197,76 +138,55 @@ bool IRGenerator::ir_function_define(ast_node * node)
     // 这里也可增加一个函数入口Label指令，便于后续基本块划分
 
     // 创建并加入Entry入口指令
-    if (node->name == "main") { // 遍历函数体内的每个语句
-        for (auto son: node->sons) {
+    irCode.addInst(new EntryIRInst());
 
-            // 遍历函数定义，孩子要么是函数类型，要么是形式参数，要么是block
-            ast_node * son_node = ir_visit_ast_node(son);
-            if (!son_node) {
+    // 创建出口指令并不加入出口指令，等函数内的指令处理完毕后加入出口指令
+    IRInst * exitLabelInst = new LabelIRInst();
 
-                // 对函数体内的语句进行语义分析时出现错误
-                return false;
-            }
+    // 函数出口指令保存到函数信息中，因为在语义分析函数体时return语句需要跳转到函数尾部，需要这个label指令
+    symtab->currentFunc->setExitLabel(exitLabelInst);
+    // 新建一个Value，用于保存函数的返回值，如果没有返回值可不用申请，
+    // 目前未知，先创建一个，不用后续可释放
+    Value * retValue = symtab->currentFunc->newVarValue(BasicType::TYPE_INT);
 
-            // IR指令追加到当前的节点中
-            node->blockInsts.addInst(son_node->blockInsts);
+    // 保存函数返回值变量到函数信息中，在return语句翻译时需要设置值到这个变量中
+    symtab->currentFunc->setReturnValue(retValue);
+
+    // 遍历函数体内的每个语句
+    for (auto son: node->sons) {
+
+        // 遍历函数定义，孩子要么是函数类型，要么是形式参数，要么是block
+        ast_node * son_node = ir_visit_ast_node(son);
+        if (!son_node) {
+
+            // 对函数体内的语句进行语义分析时出现错误
+            return false;
         }
 
-        // 此时，所有指令都加入到当前函数中，也就是node->blockInsts
+        // IR指令追加到当前的节点中
+        node->blockInsts.addInst(son_node->blockInsts);
+    }
 
-        // node节点的指令移动到函数的IR指令列表中
-        irCode.addInst(node->blockInsts);
+    // 此时，所有指令都加入到当前函数中，也就是node->blockInsts
+
+    // node节点的指令移动到函数的IR指令列表中
+    irCode.addInst(node->blockInsts);
+
+    // 添加函数出口Label指令，主要用于return语句跳转到这里进行函数的退出
+    irCode.addInst(exitLabelInst);
+
+    // 检查函数是否有返回值类型，则需要设置返回值，否则不设置
+    if (symtab->currentFunc->getReturnType().type != BasicType::TYPE_VOID) {
+        // 函数出口指令
+        irCode.addInst(new ExitIRInst(retValue));
     } else {
-        irCode.addInst(new EntryIRInst());
+        // 清理资源恢复原状
+        symtab->currentFunc->deleteVarValue(retValue);
+        symtab->currentFunc->setReturnValue(nullptr);
+        delete retValue;
 
-        // 创建出口指令并不加入出口指令，等函数内的指令处理完毕后加入出口指令
-        IRInst * exitLabelInst = new LabelIRInst();
-
-        // 函数出口指令保存到函数信息中，因为在语义分析函数体时return语句需要跳转到函数尾部，需要这个label指令
-        symtab->currentFunc->setExitLabel(exitLabelInst);
-        // 新建一个Value，用于保存函数的返回值，如果没有返回值可不用申请，
-        // 目前未知，先创建一个，不用后续可释放
-        Value * retValue = symtab->currentFunc->newVarValue(BasicType::TYPE_INT);
-
-        // 保存函数返回值变量到函数信息中，在return语句翻译时需要设置值到这个变量中
-        symtab->currentFunc->setReturnValue(retValue);
-
-        // 遍历函数体内的每个语句
-        for (auto son: node->sons) {
-
-            // 遍历函数定义，孩子要么是函数类型，要么是形式参数，要么是block
-            ast_node * son_node = ir_visit_ast_node(son);
-            if (!son_node) {
-
-                // 对函数体内的语句进行语义分析时出现错误
-                return false;
-            }
-
-            // IR指令追加到当前的节点中
-            node->blockInsts.addInst(son_node->blockInsts);
-        }
-
-        // 此时，所有指令都加入到当前函数中，也就是node->blockInsts
-
-        // node节点的指令移动到函数的IR指令列表中
-        irCode.addInst(node->blockInsts);
-
-        // 添加函数出口Label指令，主要用于return语句跳转到这里进行函数的退出
-        irCode.addInst(exitLabelInst);
-
-        // 检查函数是否有返回值类型，则需要设置返回值，否则不设置
-        if (symtab->currentFunc->getReturnType().type != BasicType::TYPE_VOID) {
-            // 函数出口指令
-            irCode.addInst(new ExitIRInst(retValue));
-        } else {
-            // 清理资源恢复原状
-            symtab->currentFunc->deleteVarValue(retValue);
-            symtab->currentFunc->setReturnValue(nullptr);
-            delete retValue;
-
-            // 函数出口指令
-            irCode.addInst(new ExitIRInst());
-        }
+        // 函数出口指令
+        irCode.addInst(new ExitIRInst());
     }
     // 恢复成指向main函数
     symtab->currentFunc = symtab->mainFunc;
