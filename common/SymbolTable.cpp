@@ -145,7 +145,6 @@ Value * SymbolTable::newVarGlobalValue(std::string name, BasicType type)
 
     auto pIter = varsMap.find(name);
     if (pIter != varsMap.end()) {
-
         // 已存在的Value
         retVal = pIter->second;
 
@@ -161,7 +160,6 @@ Value * SymbolTable::newVarGlobalValue(std::string name, BasicType type)
         retVal = new VarValue(name, type);
         insertglobalValue(retVal);
     }
-
     return retVal;
 }
 /// @brief Value插入到符号表中
@@ -228,11 +226,15 @@ Value * SymbolTable::findValue(std::string name, bool create)
 
     auto pIter = varsMap.find(name);
     if (pIter == varsMap.end()) {
-
         // 变量名没有找到
-        if (create) {
-            temp = newVarValue(name);
+
+        for (auto var: varsglobalVector) {
+            if (var->_name == name) {
+                temp = var;
+                return temp;
+            }
         }
+
     } else {
         temp = pIter->second;
     }

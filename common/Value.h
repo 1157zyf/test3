@@ -53,6 +53,8 @@ protected:
     /// @brief 是否是用户定义的变量或标识符
     bool _var = false;
 
+    /// @brief 全局变量
+
     /// @brief 是否是内存变量
     bool _mem = false;
 
@@ -124,7 +126,7 @@ public:
     }
     virtual std::string globaltoString()
     {
-        return " i32 @" + getName();
+        return " i32 " + getName();
     }
     std::string toString(std::string name)
     {

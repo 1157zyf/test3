@@ -604,8 +604,9 @@ bool IRGenerator::ir_vardecl(ast_node * node)
         node->val = val;
     } else {
         // 直接新建全局变量，插入到全局变量向量表中
-        Value * val = symtab->newVarGlobalValue(node->name, BasicType::TYPE_INT);
+        Value * val = symtab->newVarGlobalValue("@" + node->name, BasicType::TYPE_INT);
         node->val = val;
+        val->_name = node->name;
     }
 
     if (node->sons[1] != nullptr) {
@@ -790,10 +791,13 @@ bool IRGenerator::ir_return(ast_node * node)
 /// @return 翻译是否成功，true：成功，false：失败
 bool IRGenerator::ir_leaf_node_var_id(ast_node * node)
 {
+
     Value * val;
 
     // 新建一个ID型Value
+
     // 变量，则需要在全局变量和函数变量中查找对应的值
+
     val = symtab->currentFunc->findValue(node->name, false);
     if (!val) {
         val = symtab->findValue(node->name, false);
@@ -803,7 +807,6 @@ bool IRGenerator::ir_leaf_node_var_id(ast_node * node)
             return false;
         }
         // 变量不存在，则创建一个变量
-        val = symtab->currentFunc->newVarValue(node->name);
         node->val = val;
         return true;
     } else {
