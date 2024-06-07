@@ -150,7 +150,7 @@ void BinaryIRInst::toString(std::string & str)
         case IRInstOperator::IRINST_OP_MULT_I:
 
             // 乘法指令，二元运算
-            str = result->getName() + " = mult " + src1->toStringname() + ", " + src2->toStringname();
+            str = result->getName() + " = mul " + src1->toStringname() + ", " + src2->toStringname();
             break;
         case IRInstOperator::IRINST_OP_DIV_I:
 
@@ -165,7 +165,7 @@ void BinaryIRInst::toString(std::string & str)
         case IRInstOperator::IRINST_OP_MINUS:
 
             // 取负指令，一元运算
-            str = result->getName() + " = neg " + src1->toString();
+            str = result->getName() + " = neg " + src1->toStringname();
             break;
 
         default:
