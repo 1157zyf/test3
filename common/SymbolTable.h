@@ -103,6 +103,9 @@ public:
     /// 遍历抽象树过程中的当前处理函数
     Function * currentFunc = nullptr;
 
+    Value * st[400];
+    int top = 0;
+
 private:
     /// @brief 变量名映射表，变量名-变量，只保存全局变量以及常量
     std::unordered_map<std::string, Value *> varsMap;

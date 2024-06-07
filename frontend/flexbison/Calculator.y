@@ -309,18 +309,18 @@ VarDecls : VarDecl {
 	| VarDecls ',' T_ID Array{
 		// 创建数组节点
 		ast_node * id_node = new_ast_leaf_node(var_id_attr{$3.id, $3.lineno});
-		ast_node * array = new_ast_node(ast_operator_type::AST_OP_VARDECL, id_node, $4, nullptr);
-		$$ = insert_ast_node($1, array);
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+
+		ast_node * array_node = insert_ast_node($4, id_node, type_node);
+		$$ = insert_ast_node($1, array_node);
 	}
 	;
 //变量定义
 VarDecl : T_INT T_ID '=' Expr {
 	    //新建int类型节点
 	    ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
-
 	    // 变量节点
 	    ast_node * id_node = new_ast_leaf_node(var_id_attr{$2.id, $2.lineno});
-
         // 创建一个AST_OP_ASSIGN类型的中间节点，孩子为Id和Expr($4)
         ast_node * as_node = new_ast_node(ast_operator_type::AST_OP_ASSIGN, id_node, $4, nullptr);
 	    $$ = create_var_decl($2.lineno, $2.id, type_node, as_node);
@@ -328,26 +328,27 @@ VarDecl : T_INT T_ID '=' Expr {
 	| T_INT T_ID {
 		//新建int类型节点
 	    ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
-
 	    $$ = create_var_decl($2.lineno, $2.id, type_node, nullptr);
     }
 	| T_INT T_ID Array{
-        // 创建数组节点
+        // 创建数组节点,插名字、类型
 		ast_node * id_node = new_ast_leaf_node(var_id_attr{$2.id, $2.lineno});
-		$$ = new_ast_node(ast_operator_type::AST_OP_VARDECL, id_node, $3, nullptr);
+		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+		$$ = insert_ast_node($3, id_node, type_node);
     }
 	;
-
 Array : '[' T_DIGIT ']' {
-        // 创建数组节点
-		ast_node * type_node = new_ast_node(ast_operator_type::AST_OP_INT_TYPE, nullptr);
+        // 创建维度,插数字
 		ast_node * digit_node = new_ast_leaf_node(digit_int_attr{$2.val, $2.lineno});
-		$$ = new_ast_node(ast_operator_type::AST_OP_ARRAY_DECL, digit_node, type_node, nullptr);
+		ast_node * dim_node = new_ast_node(ast_operator_type::AST_OP_DIM, digit_node, nullptr);
+		$$ = new_ast_node(ast_operator_type::AST_OP_ARRAY, dim_node, nullptr);
+
     }
-    | '[' T_DIGIT ']' Array {
-		// 多维数组
-		ast_node * digit_node = new_ast_leaf_node(digit_int_attr{$2.val, $2.lineno});
-		$$ = new_ast_node(ast_operator_type::AST_OP_ARRAY_DECL, digit_node, $4, nullptr);
+    | Array '[' T_DIGIT ']' {
+		// 多维
+		ast_node * digit_node = new_ast_leaf_node(digit_int_attr{$3.val, $3.lineno});
+		insert_ast_node($1->sons[0], digit_node);
+		$$ = $1;
     }
     ;
 
@@ -492,7 +493,6 @@ PrimaryExp :  '(' Expr ')' {
     }
     | T_DIGIT {
         // 无符号整数识别
-
         // 终结符作为抽象语法树的叶子节点进行创建
         $$ = new_ast_leaf_node(digit_int_attr{$1.val, $1.lineno});
     }
@@ -505,7 +505,6 @@ PrimaryExp :  '(' Expr ')' {
 LVal : T_ID {
         // 终结符作为抽象语法树的叶子节点进行创建
         $$ = new_ast_leaf_node(var_id_attr{$1.id, $1.lineno});
-
 		// 对于字符型字面量的字符串空间需要释放，因词法用到了strdup进行了字符串复制
 		free($1.id);
     }

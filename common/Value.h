@@ -84,6 +84,7 @@ public:
     int32_t baseRegNo = -1;
     /// @brief flag
     bool flag = false;
+    bool scope = false;
 
 protected:
     /// @brief 默认实数类型的构造函数，初始值为0

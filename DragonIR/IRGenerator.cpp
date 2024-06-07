@@ -56,12 +56,12 @@ IRGenerator::IRGenerator(ast_node * _root, SymbolTable * _symtab) : root(_root),
     /* 变量定义、数组定义 */
     ast2ir_handlers[ast_operator_type::AST_OP_VARDECL] = &IRGenerator::ir_vardecl;
     ast2ir_handlers[ast_operator_type::AST_OP_VARLIST] = &IRGenerator::ir_varlist;
-    ast2ir_handlers[ast_operator_type::AST_OP_ARRAY_DECL] = &IRGenerator::ir_array_decl;
+    ast2ir_handlers[ast_operator_type::AST_OP_ARRAY] = &IRGenerator::ir_array;
+    ast2ir_handlers[ast_operator_type::AST_OP_DIM] = &IRGenerator::ir_dimension;
 
     /* 类型节点，无实际意义 */
     ast2ir_handlers[ast_operator_type::AST_OP_FUNC_TYPE] = &IRGenerator::ir_func_type;
     ast2ir_handlers[ast_operator_type::AST_OP_INT_TYPE] = &IRGenerator::ir_int_type;
-    // ast2ir_handlers[ast_operator_type::AST_OP_VOID_TYPE] = &IRGenerator::ir_type;
 
     /* if-else、while语句 */
     ast2ir_handlers[ast_operator_type::AST_OP_IF] = &IRGenerator::ir_if;
@@ -78,6 +78,7 @@ IRGenerator::IRGenerator(ast_node * _root, SymbolTable * _symtab) : root(_root),
 
     /* 函数定义 */
     ast2ir_handlers[ast_operator_type::AST_OP_FUNC_DEF] = &IRGenerator::ir_function_define;
+    ast2ir_handlers[ast_operator_type::AST_OP_FUNC_DECL] = &IRGenerator::ir_function_declare;
     ast2ir_handlers[ast_operator_type::AST_OP_FUNC_FORMAL_PARAMS] = &IRGenerator::ir_function_formal_params;
 
     /* 语句块 */
@@ -106,6 +107,14 @@ bool IRGenerator::ir_compile_unit(ast_node * node)
     return true;
 }
 
+/// @brief 函数声明AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_function_declare(ast_node * node)
+{
+    return true;
+}
+
 /// @brief 函数定义AST节点翻译成线性中间IR
 /// @param node AST节点
 /// @return 翻译是否成功，true：成功，false：失败
@@ -119,7 +128,7 @@ bool IRGenerator::ir_function_define(ast_node * node)
     }
 
     // 创建一个新的函数定义，函数的返回类型设置为INT，待定，必须等return时才能确定，目前可以是VOID或者INT类型
-    symtab->currentFunc = new Function(node->name, BasicType::TYPE_INT);
+    symtab->currentFunc = new Function(node->name, node->type.type);
     bool result = symtab->insertFunction(symtab->currentFunc);
     if (!result) {
         // 清理资源
@@ -148,6 +157,7 @@ bool IRGenerator::ir_function_define(ast_node * node)
     symtab->currentFunc->setExitLabel(exitLabelInst);
     // 新建一个Value，用于保存函数的返回值，如果没有返回值可不用申请，
     // 目前未知，先创建一个，不用后续可释放
+
     Value * retValue = symtab->currentFunc->newVarValue(BasicType::TYPE_INT);
 
     // 保存函数返回值变量到函数信息中，在return语句翻译时需要设置值到这个变量中
@@ -169,7 +179,6 @@ bool IRGenerator::ir_function_define(ast_node * node)
     }
 
     // 此时，所有指令都加入到当前函数中，也就是node->blockInsts
-
     // node节点的指令移动到函数的IR指令列表中
     irCode.addInst(node->blockInsts);
 
@@ -287,6 +296,8 @@ bool IRGenerator::ir_function_call(ast_node * node)
 /// @return 翻译是否成功，true：成功，false：失败
 bool IRGenerator::ir_block(ast_node * node)
 {
+    cnt = false;
+    int tmp = symtab->top;
     std::vector<ast_node *>::iterator pIter;
     for (pIter = node->sons.begin(); pIter != node->sons.end(); ++pIter) {
 
@@ -298,7 +309,14 @@ bool IRGenerator::ir_block(ast_node * node)
 
         node->blockInsts.addInst(temp->blockInsts);
     }
-
+    if (tmp != symtab->top) {
+        Value * val = symtab->st[symtab->top];
+        while (val->scope == false) {
+            symtab->top--;
+            val = symtab->st[symtab->top];
+        }
+        symtab->top--;
+    }
     return true;
 }
 
@@ -601,12 +619,24 @@ bool IRGenerator::ir_vardecl(ast_node * node)
         Value * val = new VarValue(BasicType::TYPE_INT);
         symtab->currentFunc->insertValue(val);
         val->_name = node->name;
+        if (!cnt) {
+            val->scope = true;
+            cnt = true;
+        }
+
+        // 压栈
+        symtab->st[++symtab->top] = val;
         node->val = val;
     } else {
         // 直接新建全局变量，插入到全局变量向量表中
         Value * val = symtab->newVarGlobalValue("@" + node->name, BasicType::TYPE_INT);
-        node->val = val;
         val->_name = node->name;
+        if (cnt == false) {
+            val->scope = true;
+            cnt = true;
+        }
+        symtab->st[++symtab->top] = val;
+        node->val = val;
     }
 
     if (node->sons[1] != nullptr) {
@@ -633,7 +663,15 @@ bool IRGenerator::ir_varlist(ast_node * node)
 /// @brief 数组定义AST节点翻译成线性中间IR
 /// @param node AST节点
 /// @return 翻译是否成功，true：成功，false：失败
-bool IRGenerator::ir_array_decl(ast_node * node)
+bool IRGenerator::ir_array(ast_node * node)
+{
+    return true;
+}
+
+/// @brief 数组维度AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_dimension(ast_node * node)
 {
     return true;
 }
@@ -683,7 +721,11 @@ bool IRGenerator::ir_int_type(ast_node * node)
             Value * val = new VarValue(BasicType::TYPE_INT);
             symtab->currentFunc->insertValue(val);
             val->_name = son->name;
-
+            if (!cnt) {
+                val->scope = true;
+                cnt = true;
+            }
+            symtab->st[++symtab->top] = val;
             // 新建临时变量，把参数的值赋给局部变量
             Value * tempval = new TempValue(BasicType::TYPE_INT);
             node->blockInsts.addInst(new AssignIRInst(val, tempval));
@@ -792,27 +834,39 @@ bool IRGenerator::ir_return(ast_node * node)
 bool IRGenerator::ir_leaf_node_var_id(ast_node * node)
 {
 
-    Value * val;
-
-    // 新建一个ID型Value
-
-    // 变量，则需要在全局变量和函数变量中查找对应的值
-
-    val = symtab->currentFunc->findValue(node->name, false);
-    if (!val) {
-        val = symtab->findValue(node->name, false);
-        if (!val) {
-
-            // 变量不存在，则创建一个变量
-            return false;
+    int temp = symtab->top;
+    do {
+        if (temp > 0 && symtab->st[temp]->_name == node->name) {
+            node->val = symtab->st[temp];
+            return true;
+        } else {
+            temp--;
         }
-        // 变量不存在，则创建一个变量
-        node->val = val;
-        return true;
-    } else {
-        node->val = val;
-        return true;
-    }
+    } while (temp > 0);
+
+    // 栈中没有找到，直接返回错误信息
+    return false;
+    // Value * val;
+
+    // // 新建一个ID型Value
+
+    // // 变量，则需要在全局变量和函数变量中查找对应的值
+
+    // val = symtab->currentFunc->findValue(node->name, false);
+    // if (!val) {
+    //     val = symtab->findValue(node->name, false);
+    //     if (!val) {
+
+    //         // 变量不存在，则创建一个变量
+    //         return false;
+    //     }
+    //     // 变量不存在，则创建一个变量
+    //     node->val = val;
+    //     return true;
+    // } else {
+    //     node->val = val;
+    //     return true;
+    // }
 
     return true;
 }

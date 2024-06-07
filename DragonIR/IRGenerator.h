@@ -29,6 +29,7 @@ public:
 
     /// @brief 运行产生IR
     bool run();
+    bool cnt = false;
 
 protected:
     /// @brief 编译单元AST节点翻译成线性中间IR
@@ -134,7 +135,12 @@ protected:
     /// @brief 数组定义AST节点翻译成线性中间IR
     /// @param node AST节点
     /// @return 翻译是否成功，true：成功，false：失败
-    bool ir_array_decl(ast_node * node);
+    bool ir_array(ast_node * node);
+
+    /// @brief 数组维度AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_dimension(ast_node * node);
 
     /// @brief if-else的AST节点翻译成线性中间IR
     /// @param node AST节点
@@ -150,6 +156,11 @@ protected:
     /// @param node AST节点
     /// @return 翻译是否成功，true：成功，false：失败
     bool ir_int_type(ast_node * node);
+
+    /// @brief 函数声明AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_function_declare(ast_node * node);
 
     /// @brief 表示函数类型的AST节点翻译成线性中间IR
     /// @param node AST节点

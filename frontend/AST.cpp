@@ -131,6 +131,18 @@ ast_node * insert_ast_node(ast_node * parent, ast_node * node)
     parent->sons.push_back(node);
     return parent;
 }
+/// @brief 向父节点插入两个节点
+/// @param parent 父节点
+/// @param node1 子节点1
+/// @param node2 子节点1
+ast_node * insert_ast_node(ast_node * parent, ast_node * node1, ast_node * node2)
+{
+    node1->parent = parent;
+    node2->parent = parent;
+    parent->sons.push_back(node1);
+    parent->sons.push_back(node2);
+    return parent;
+}
 
 /// @brief 创建无符号整数的叶子节点
 /// @param attr 无符号整数字面量

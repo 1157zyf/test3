@@ -71,7 +71,10 @@ enum class ast_operator_type : int {
     AST_OP_VARLIST,
 
     /// @brief 数组定义运算符
-    AST_OP_ARRAY_DECL,
+    AST_OP_ARRAY,
+
+    /// @brief 数组维度
+    AST_OP_DIM,
 
     /// @brief
     /// 函数声明运算符，函数名和返回值类型作为节点的属性，自左到右孩子：AST_OP_FUNC_TYPE、AST_OP_FUNC_FORMAL_PARAMS
@@ -216,6 +219,11 @@ ast_node * new_ast_node(ast_operator_type type, ...);
 /// @param parent 父节点
 /// @param node 节点
 ast_node * insert_ast_node(ast_node * parent, ast_node * node);
+/// @brief 向父节点插入两个节点
+/// @param parent 父节点
+/// @param node1 子节点1
+/// @param node2 子节点1
+ast_node * insert_ast_node(ast_node * parent, ast_node * node1, ast_node * node2);
 
 /// @brief 创建无符号整数的叶子节点
 /// @param val 词法值
