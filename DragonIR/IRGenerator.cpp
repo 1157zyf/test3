@@ -59,8 +59,8 @@ IRGenerator::IRGenerator(ast_node * _root, SymbolTable * _symtab) : root(_root),
     ast2ir_handlers[ast_operator_type::AST_OP_ARRAY_DECL] = &IRGenerator::ir_array_decl;
 
     /* 类型节点，无实际意义 */
-    ast2ir_handlers[ast_operator_type::AST_OP_FUNC_TYPE] = &IRGenerator::ir_type;
-    ast2ir_handlers[ast_operator_type::AST_OP_INT_TYPE] = &IRGenerator::ir_type;
+    ast2ir_handlers[ast_operator_type::AST_OP_FUNC_TYPE] = &IRGenerator::ir_func_type;
+    ast2ir_handlers[ast_operator_type::AST_OP_INT_TYPE] = &IRGenerator::ir_int_type;
     // ast2ir_handlers[ast_operator_type::AST_OP_VOID_TYPE] = &IRGenerator::ir_type;
 
     /* if-else、while语句 */
@@ -199,17 +199,18 @@ bool IRGenerator::ir_function_define(ast_node * node)
 /// @return 翻译是否成功，true：成功，false：失败
 bool IRGenerator::ir_function_formal_params(ast_node * node)
 {
-    // 获取当前要保存函数的形式参数清单
-    auto & params = symtab->currentFunc->getParams();
-
-    // 遍历形式参数列表，孩子是叶子节点
+    // 遍历形式参数列表，孩子是类型节点
     for (auto son: node->sons) {
+        // 访问叶子结点
+        ast_node * son_node = ir_visit_ast_node(son);
+        if (!son_node) {
 
-        // 创建变量，默认整型
-        Value * var = symtab->currentFunc->newVarValue(son->name, BasicType::TYPE_INT);
+            // 对函数体内的语句进行语义分析时出现错误
+            return false;
+        }
 
-        // 默认是整数类型
-        params.emplace_back(son->name, BasicType::TYPE_INT, var);
+        // IR指令追加到当前的节点中
+        node->blockInsts.addInst(son_node->blockInsts);
     }
 
     return true;
@@ -652,15 +653,45 @@ bool IRGenerator::ir_while(ast_node * node)
     return true;
 }
 
-/// @brief 表示类型的AST节点翻译成线性中间IR
+/// @brief int类型AST节点翻译成线性中间IR
 /// @param node AST节点
 /// @return 翻译是否成功，true：成功，false：失败
-bool IRGenerator::ir_type(ast_node * node)
+bool IRGenerator::ir_func_type(ast_node * node)
 {
-    // ast_node * type_node = node->sons[0];
+    for (auto son: node->sons) {
+        ast_node * child = ir_visit_ast_node(son);
+        node->blockInsts.addInst(child->blockInsts);
+    }
     return true;
 }
 
+/// @brief int类型AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_int_type(ast_node * node)
+{
+    // 获取当前要保存函数的形式参数清单
+    auto & params = symtab->currentFunc->getParams();
+
+    // 如果是变量定义，默认类型都是int，这里什么也不用做
+    // 如果是函数参数，则要继续遍历它的孩子，也就是叶子结点
+    if (!node->sons.empty()) {
+        // 创建变量，默认整型
+        for (auto son: node->sons) {
+            // 直接新建局部变量，插入到函数变量向量表中
+            Value * val = new VarValue(BasicType::TYPE_INT);
+            symtab->currentFunc->insertValue(val);
+            val->_name = son->name;
+
+            // 新建临时变量，把参数的值赋给局部变量
+            Value * tempval = new TempValue(BasicType::TYPE_INT);
+            node->blockInsts.addInst(new AssignIRInst(val, tempval));
+            //  默认是整数类型
+            params.emplace_back(tempval->name, BasicType::TYPE_INT, val);
+        }
+    }
+    return true;
+}
 /// @brief 赋值AST节点翻译成线性中间IR
 /// @param node AST节点
 /// @return 翻译是否成功，true：成功，false：失败
@@ -760,17 +791,25 @@ bool IRGenerator::ir_return(ast_node * node)
 bool IRGenerator::ir_leaf_node_var_id(ast_node * node)
 {
     Value * val;
+
     // 新建一个ID型Value
-
-    // 变量，则需要在符号表中查找对应的值
-    // 若变量之前没有有定值，则采用默认的值为0
-
+    // 变量，则需要在全局变量和函数变量中查找对应的值
     val = symtab->currentFunc->findValue(node->name, false);
     if (!val) {
-        val = symtab->currentFunc->newVarValue(node->name);
-    }
+        val = symtab->findValue(node->name, false);
+        if (!val) {
 
-    node->val = val;
+            // 变量不存在，则创建一个变量
+            return false;
+        }
+        // 变量不存在，则创建一个变量
+        val = symtab->currentFunc->newVarValue(node->name);
+        node->val = val;
+        return true;
+    } else {
+        node->val = val;
+        return true;
+    }
 
     return true;
 }

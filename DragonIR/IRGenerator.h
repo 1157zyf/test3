@@ -146,10 +146,15 @@ protected:
     /// @return 翻译是否成功，true：成功，false：失败
     bool ir_while(ast_node * node);
 
-    /// @brief 表示类型的AST节点翻译成线性中间IR
+    /// @brief 表示整型的AST节点翻译成线性中间IR
     /// @param node AST节点
     /// @return 翻译是否成功，true：成功，false：失败
-    bool ir_type(ast_node * node);
+    bool ir_int_type(ast_node * node);
+
+    /// @brief 表示函数类型的AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_func_type(ast_node * node);
 
     /// @brief return节点翻译成线性中间IR
     /// @param node AST节点

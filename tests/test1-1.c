@@ -1,8 +1,10 @@
-int b;
-int e;
+int add(int a, int e)
+{
+    return 1;
+}
 int main()
 {
-    int a = 1;
-    int c = a * 2;
+    int b=1;
+    int c = b * 2;
     return 0;
 }
